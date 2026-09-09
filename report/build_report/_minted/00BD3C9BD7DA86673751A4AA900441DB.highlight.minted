@@ -1,0 +1,85 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZlt{}!DOCTYPE html\PYGZgt{}}
+\PYG{p}{\PYGZlt{}}\PYG{n+nt}{meta} \PYG{n+na}{name}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}viewport\PYGZdq{}} \PYG{n+na}{content}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}width=device\PYGZhy{}width, initial\PYGZhy{}scale=1.0\PYGZdq{}}\PYG{p}{\PYGZgt{}}
+\PYG{p}{\PYGZlt{}}\PYG{n+nt}{html}\PYG{p}{\PYGZgt{}}
+\PYG{p}{\PYGZlt{}}\PYG{n+nt}{style}\PYG{p}{\PYGZgt{}}
+\PYG{p}{\PYGZsh{}}\PYG{n+nn}{on\PYGZus{}off\PYGZus{}button}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{width}\PYG{p}{:}\PYG{+w}{ }\PYG{l+m+mi}{45}\PYG{k+kt}{\PYGZpc{}}\PYG{p}{;}
+\PYG{+w}{	}\PYG{k}{height}\PYG{p}{:}\PYG{l+m+mi}{100}\PYG{k+kt}{px}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZsh{}}\PYG{n+nn}{auto\PYGZus{}manu\PYGZus{}button}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{width}\PYG{p}{:}\PYG{+w}{ }\PYG{l+m+mi}{45}\PYG{k+kt}{\PYGZpc{}}\PYG{p}{;}
+\PYG{+w}{	}\PYG{k}{height}\PYG{p}{:}\PYG{l+m+mi}{100}\PYG{k+kt}{px}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{n+nt}{datalist}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{  }\PYG{k}{display}\PYG{p}{:}\PYG{+w}{ }\PYG{k+kc}{flex}\PYG{p}{;}
+\PYG{+w}{  }\PYG{k}{flex\PYGZhy{}direction}\PYG{p}{:}\PYG{+w}{ }\PYG{k+kc}{column}\PYG{p}{;}
+\PYG{+w}{  }\PYG{k}{justify\PYGZhy{}content}\PYG{p}{:}\PYG{+w}{ }\PYG{k+kc}{space\PYGZhy{}between}\PYG{p}{;}
+\PYG{+w}{  }\PYG{k}{writing\PYGZhy{}mode}\PYG{p}{:}\PYG{+w}{ }\PYG{k+kc}{vertical}\PYG{o}{\PYGZhy{}}\PYG{n}{lr}\PYG{p}{;}
+\PYG{+w}{  }\PYG{k}{width}\PYG{p}{:}\PYG{+w}{ }\PYG{l+m+mi}{100}\PYG{k+kt}{\PYGZpc{}}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{n+nt}{option}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{  }\PYG{k}{padding}\PYG{p}{:}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{n+nt}{input}\PYG{o}{[}\PYG{n+nt}{type}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}range\PYGZdq{}}\PYG{o}{]}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{  }\PYG{k}{width}\PYG{p}{:}\PYG{+w}{ }\PYG{l+m+mi}{100}\PYG{k+kt}{\PYGZpc{}}\PYG{p}{;}
+\PYG{+w}{  }\PYG{k}{height}\PYG{p}{:}\PYG{l+m+mi}{50}\PYG{k+kt}{px}\PYG{p}{;}
+\PYG{+w}{  }\PYG{k}{margin}\PYG{p}{:}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZlt{}/}\PYG{n+nt}{style}\PYG{p}{\PYGZgt{}}
+\PYG{p}{\PYGZlt{}}\PYG{n+nt}{script}\PYG{p}{\PYGZgt{}}
+\PYG{k+kd}{var}\PYG{+w}{ }\PYG{n+nx}{engine}\PYG{p}{;}
+
+\PYG{k+kd}{function}\PYG{+w}{ }\PYG{n+nx}{init}\PYG{p}{()}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n+nx}{vmax}\PYG{o}{=}\PYG{l+m+mf}{0}\PYG{p}{;}
+\PYG{+w}{	}\PYG{n+nx}{engine}\PYG{o}{=}\PYG{l+m+mf}{0}\PYG{p}{;}
+\PYG{+w}{	}\PYG{n+nb}{document}\PYG{p}{.}\PYG{n+nx}{getElementById}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}on\PYGZus{}off\PYGZus{}button\PYGZdq{}}\PYG{p}{).}\PYG{n+nx}{innerHTML}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Engine Off\PYGZdq{}}\PYG{p}{;}
+\PYG{+w}{	}\PYG{n+nb}{document}\PYG{p}{.}\PYG{n+nx}{getElementById}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}on\PYGZus{}off\PYGZus{}button\PYGZdq{}}\PYG{p}{).}\PYG{n+nx}{style}\PYG{p}{.}\PYG{n+nx}{backgroundColor}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}red\PYGZdq{}}\PYG{p}{;}
+
+\PYG{+w}{    }\PYG{n+nb}{document}\PYG{p}{.}\PYG{n+nx}{getElementById}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}on\PYGZus{}off\PYGZus{}button\PYGZdq{}}\PYG{p}{).}\PYG{n+nx}{addEventListener}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}click\PYGZdq{}}\PYG{p}{,}\PYG{k}{async}\PYG{+w}{ }\PYG{k+kd}{function}\PYG{p}{()}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{        }\PYG{k+kd}{let}\PYG{+w}{ }\PYG{n+nx}{response}\PYG{p}{;}
+\PYG{+w}{        }\PYG{k}{if}\PYG{p}{(}\PYG{k}{this}\PYG{p}{.}\PYG{n+nx}{innerHTML}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Engine Off\PYGZdq{}}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{            }\PYG{n+nx}{response}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k}{await}\PYG{+w}{ }\PYG{n+nx}{fetch}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/engine\PYGZus{}on\PYGZsq{}}\PYG{p}{);}
+\PYG{+w}{            }\PYG{k}{this}\PYG{p}{.}\PYG{n+nx}{innerHTML}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Engine On\PYGZdq{}}\PYG{p}{;}
+\PYG{+w}{            }\PYG{k}{this}\PYG{p}{.}\PYG{n+nx}{style}\PYG{p}{.}\PYG{n+nx}{backgroundColor}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}green\PYGZdq{}}\PYG{p}{;}
+\PYG{+w}{            }\PYG{n+nx}{engine}\PYG{o}{=}\PYG{l+m+mf}{1}\PYG{p}{;}
+\PYG{+w}{        }\PYG{p}{\PYGZcb{}}\PYG{+w}{	}
+\PYG{+w}{        }\PYG{k}{else}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{            }\PYG{n+nx}{response}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k}{await}\PYG{+w}{ }\PYG{n+nx}{fetch}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/engine\PYGZus{}off\PYGZsq{}}\PYG{p}{);}
+\PYG{+w}{            }\PYG{k}{this}\PYG{p}{.}\PYG{n+nx}{innerHTML}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s+s2}{\PYGZdq{}Engine Off\PYGZdq{}}\PYG{p}{;}
+\PYG{+w}{            }\PYG{k}{this}\PYG{p}{.}\PYG{n+nx}{style}\PYG{p}{.}\PYG{n+nx}{backgroundColor}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}red\PYGZdq{}}\PYG{p}{;}
+\PYG{+w}{            }\PYG{n+nx}{engine}\PYG{o}{=}\PYG{l+m+mf}{0}\PYG{p}{;}
+\PYG{+w}{        }\PYG{p}{\PYGZcb{}}\PYG{+w}{	}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{});}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k+kd}{function}\PYG{+w}{ }\PYG{n+nx}{updateData}\PYG{p}{()}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{n+nx}{fetch}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/brain\PYGZsq{}}\PYG{p}{)}
+\PYG{+w}{        }\PYG{p}{.}\PYG{n+nx}{then}\PYG{p}{(}\PYG{n+nx}{response}\PYG{+w}{ }\PYG{p}{=\PYGZgt{}}\PYG{+w}{ }\PYG{n+nx}{response}\PYG{p}{.}\PYG{n+nx}{json}\PYG{p}{())}
+\PYG{+w}{        }\PYG{p}{.}\PYG{n+nx}{then}\PYG{p}{(}\PYG{n+nx}{data}\PYG{+w}{ }\PYG{p}{=\PYGZgt{}}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{            }\PYG{n+nb}{document}\PYG{p}{.}\PYG{n+nx}{getElementById}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}angle\PYGZsq{}}\PYG{p}{).}\PYG{n+nx}{textContent}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nx}{data}\PYG{p}{.}\PYG{n+nx}{angle}\PYG{p}{;}
+\PYG{+w}{            }\PYG{n+nb}{document}\PYG{p}{.}\PYG{n+nx}{getElementById}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}odometre\PYGZsq{}}\PYG{p}{).}\PYG{n+nx}{textContent}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nx}{data}\PYG{p}{.}\PYG{n+nx}{odometre}\PYG{p}{;}
+\PYG{+w}{            }\PYG{n+nb}{document}\PYG{p}{.}\PYG{n+nx}{getElementById}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}rpm\PYGZsq{}}\PYG{p}{).}\PYG{n+nx}{textContent}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nx}{data}\PYG{p}{.}\PYG{n+nx}{current\PYGZus{}rpm}\PYG{p}{;}
+\PYG{+w}{            }\PYG{n+nb}{document}\PYG{p}{.}\PYG{n+nx}{getElementById}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}pwm\PYGZsq{}}\PYG{p}{).}\PYG{n+nx}{textContent}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nx}{data}\PYG{p}{.}\PYG{n+nx}{current\PYGZus{}pwm}\PYG{p}{;}
+\PYG{+w}{        }\PYG{p}{\PYGZcb{});}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{n+nx}{setInterval}\PYG{p}{(}\PYG{n+nx}{updateData}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mf}{500}\PYG{p}{);}
+
+\PYG{p}{\PYGZlt{}/}\PYG{n+nt}{script}\PYG{p}{\PYGZgt{}}
+\PYG{p}{\PYGZlt{}}\PYG{n+nt}{body} \PYG{n+na}{onload}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}init()\PYGZdq{}}\PYG{p}{\PYGZgt{}}
+    \PYG{p}{\PYGZlt{}}\PYG{n+nt}{img} \PYG{n+na}{style}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}\PYGZhy{}webkit\PYGZhy{}user\PYGZhy{}select: none;\PYGZdq{}} \PYG{n+na}{src}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}/camera\PYGZdq{}} \PYG{n+na}{width}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}100\PYGZpc{}\PYGZdq{}}\PYG{p}{\PYGZgt{}}
+    \PYG{p}{\PYGZlt{}}\PYG{n+nt}{BR}\PYG{p}{\PYGZgt{}}
+    \PYG{p}{\PYGZlt{}}\PYG{n+nt}{button} \PYG{n+na}{id}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}on\PYGZus{}off\PYGZus{}button\PYGZdq{}}\PYG{p}{\PYGZgt{}\PYGZlt{}/}\PYG{n+nt}{button}\PYG{p}{\PYGZgt{}}
+    \PYG{p}{\PYGZlt{}}\PYG{n+nt}{div}\PYG{p}{\PYGZgt{}}
+        angle : \PYG{p}{\PYGZlt{}}\PYG{n+nt}{span} \PYG{n+na}{id}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}angle\PYGZdq{}}\PYG{p}{\PYGZgt{}}\PYGZhy{}\PYGZhy{}\PYG{p}{\PYGZlt{}/}\PYG{n+nt}{span}\PYG{p}{\PYGZgt{}\PYGZlt{}}\PYG{n+nt}{br}\PYG{p}{\PYGZgt{}}
+        odometre : \PYG{p}{\PYGZlt{}}\PYG{n+nt}{span} \PYG{n+na}{id}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}odometre\PYGZdq{}}\PYG{p}{\PYGZgt{}}\PYGZhy{}\PYGZhy{}\PYG{p}{\PYGZlt{}/}\PYG{n+nt}{span}\PYG{p}{\PYGZgt{}\PYGZlt{}}\PYG{n+nt}{br}\PYG{p}{\PYGZgt{}}
+        rpm : \PYG{p}{\PYGZlt{}}\PYG{n+nt}{span} \PYG{n+na}{id}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}rpm\PYGZdq{}}\PYG{p}{\PYGZgt{}}\PYGZhy{}\PYGZhy{}\PYG{p}{\PYGZlt{}/}\PYG{n+nt}{span}\PYG{p}{\PYGZgt{}\PYGZlt{}}\PYG{n+nt}{br}\PYG{p}{\PYGZgt{}}
+        pwm : \PYG{p}{\PYGZlt{}}\PYG{n+nt}{span} \PYG{n+na}{id}\PYG{o}{=}\PYG{l+s}{\PYGZdq{}pwm\PYGZdq{}}\PYG{p}{\PYGZgt{}}\PYGZhy{}\PYGZhy{}\PYG{p}{\PYGZlt{}/}\PYG{n+nt}{span}\PYG{p}{\PYGZgt{}\PYGZlt{}}\PYG{n+nt}{br}\PYG{p}{\PYGZgt{}}
+    \PYG{p}{\PYGZlt{}/}\PYG{n+nt}{div}\PYG{p}{\PYGZgt{}}
+\PYG{p}{\PYGZlt{}/}\PYG{n+nt}{body}\PYG{p}{\PYGZgt{}}		
+\PYG{p}{\PYGZlt{}/}\PYG{n+nt}{html}\PYG{p}{\PYGZgt{}}
+\end{MintedVerbatim}

@@ -1,0 +1,3 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+./arduino\PYGZhy{}cli\PYG{+w}{ }board\PYG{+w}{ }details\PYG{+w}{ }\PYGZhy{}\PYGZhy{}fqbn\PYG{+w}{ }esp32:esp32:esp32
+\end{MintedVerbatim}

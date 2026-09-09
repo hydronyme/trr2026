@@ -1,0 +1,211 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{threading}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{rclpy}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{rclpy.executors}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{ExternalShutdownException}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{rclpy.executors}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{MultiThreadedExecutor}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{rclpy.node}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{Node}
+
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{rclpy.qos}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{QoSProfile}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{rclpy.qos}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{QoSHistoryPolicy}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{rclpy.qos}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{ReliabilityPolicy}
+
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{std\PYGZus{}msgs.msg}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{String}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{serial}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{time}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{json}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{math}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{struct}
+
+\PYG{k}{class}\PYG{+w}{ }\PYG{n+nc}{CentralBrain}\PYG{p}{(}\PYG{n}{Node}\PYG{p}{):}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n}{rclpy}\PYG{o}{.}\PYG{n}{init}\PYG{p}{()}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}central\PYGZus{}brain\PYGZsq{}}\PYG{p}{)}
+
+        \PYG{n}{qos} \PYG{o}{=} \PYG{n}{QoSProfile}\PYG{p}{(}
+                \PYG{n}{history}\PYG{o}{=}\PYG{n}{QoSHistoryPolicy}\PYG{o}{.}\PYG{n}{KEEP\PYGZus{}LAST}\PYG{p}{,}
+                \PYG{n}{depth}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,}
+                \PYG{n}{reliability}\PYG{o}{=}\PYG{n}{ReliabilityPolicy}\PYG{o}{.}\PYG{n}{BEST\PYGZus{}EFFORT}
+            \PYG{p}{)}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{subscriptionWeb} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}subscription}\PYG{p}{(}\PYG{n}{String}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}web\PYGZus{}command\PYGZsq{}}\PYG{p}{,}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{web\PYGZus{}callback}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{subscriptionWeb}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{subscriptionTopic} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}subscription}\PYG{p}{(}\PYG{n}{String}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}camera\PYGZus{}analysis\PYGZsq{}}\PYG{p}{,}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}callback}\PYG{p}{,} \PYG{n}{qos}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{subscriptionTopic}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publisher\PYGZus{}brain} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}publisher}\PYG{p}{(}\PYG{n}{String}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}brain\PYGZus{}status\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{)}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vmax\PYGZus{}init} \PYG{o}{=} \PYG{l+m+mf}{15.}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vmax} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vmax\PYGZus{}init}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse} \PYG{o}{=} \PYG{l+m+mf}{0.}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{on\PYGZus{}off} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{angle} \PYG{o}{=} \PYG{l+m+mf}{0.}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{auto\PYGZus{}manu} \PYG{o}{=} \PYG{l+m+mi}{1}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{speed\PYGZus{}scale} \PYG{o}{=}\PYG{l+m+mf}{1.}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{redline\PYGZus{}counter} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{redline\PYGZus{}locker} \PYG{o}{=} \PYG{l+m+mf}{0.}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{odometre} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{last\PYGZus{}tick} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tick} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{delta\PYGZus{}time} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{buffer} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}msg} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{web\PYGZus{}msg} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{esp32\PYGZus{}FMT} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZlt{}IIllffii\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{esp32\PYGZus{}msg\PYGZus{}size} \PYG{o}{=} \PYG{n}{struct}\PYG{o}{.}\PYG{n}{calcsize}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{esp32\PYGZus{}FMT}\PYG{p}{)}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{o}{=}\PYG{p}{\PYGZob{}\PYGZcb{}}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{to\PYGZus{}esp32\PYGZus{}FMT} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZlt{}Hh\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{to\PYGZus{}esp32\PYGZus{}msg\PYGZus{}size} \PYG{o}{=} \PYG{n}{struct}\PYG{o}{.}\PYG{n}{calcsize}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{to\PYGZus{}esp32\PYGZus{}FMT}\PYG{p}{)}
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ser} \PYG{o}{=} \PYG{n}{serial}\PYG{o}{.}\PYG{n}{Serial}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/dev/ttyUSB0\PYGZsq{}} \PYG{p}{,} \PYG{n}{baudrate}\PYG{o}{=}\PYG{l+m+mi}{115200}\PYG{p}{,} \PYG{n}{timeout}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{write\PYGZus{}timeout}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{)}
+        \PYG{k}{except}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ser} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n}{threading}\PYG{o}{.}\PYG{n}{Thread}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{read\PYGZus{}serial}\PYG{p}{,} \PYG{n}{daemon}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{read\PYGZus{}serial}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{k}{while} \PYG{k+kc}{True}\PYG{p}{:}
+             \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ser}\PYG{o}{.}\PYG{n}{in\PYGZus{}waiting} \PYG{o}{\PYGZgt{}=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{esp32\PYGZus{}msg\PYGZus{}size}\PYG{p}{:}
+                \PYG{n}{data} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ser}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{esp32\PYGZus{}msg\PYGZus{}size}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)} \PYG{o}{==} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{esp32\PYGZus{}msg\PYGZus{}size}\PYG{p}{:}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{o}{=}\PYG{p}{\PYGZob{}\PYGZcb{}}
+                    \PYG{p}{(}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}time\PYGZus{}esp32\PYGZdq{}}\PYG{p}{],}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}last\PYGZus{}time\PYGZus{}esp32\PYGZdq{}}\PYG{p}{],}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}count\PYGZdq{}}\PYG{p}{],}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}last\PYGZus{}count\PYGZdq{}}\PYG{p}{],}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}current\PYGZus{}rpm\PYGZdq{}}\PYG{p}{],}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}target\PYGZus{}rpm\PYGZdq{}}\PYG{p}{],}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}last\PYGZus{}pwm\PYGZdq{}}\PYG{p}{],}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}current\PYGZus{}pwm\PYGZdq{}}\PYG{p}{]}
+                    \PYG{p}{)} \PYG{o}{=} \PYG{n}{struct}\PYG{o}{.}\PYG{n}{unpack}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{esp32\PYGZus{}FMT}\PYG{p}{,}\PYG{n}{data}\PYG{p}{)}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{odometre} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}count\PYGZdq{}}\PYG{p}{]}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}delta\PYGZus{}time\PYGZus{}esp32\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}time\PYGZus{}esp32\PYGZdq{}}\PYG{p}{]}\PYG{o}{\PYGZhy{}}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}last\PYGZus{}time\PYGZus{}esp32\PYGZdq{}}\PYG{p}{]}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}delta\PYGZus{}count\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}count\PYGZdq{}}\PYG{p}{]}\PYG{o}{\PYGZhy{}}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}count\PYGZdq{}}\PYG{p}{]}
+                    \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}delta\PYGZus{}time\PYGZus{}esp32\PYGZdq{}}\PYG{p}{]} \PYG{o}{\PYGZgt{}}\PYG{l+m+mi}{0}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}speed\PYGZus{}esp32\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}delta\PYGZus{}count\PYGZdq{}}\PYG{p}{]}\PYG{o}{/}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}delta\PYGZus{}time\PYGZus{}esp32\PYGZdq{}}\PYG{p}{]}
+                    \PYG{k}{else}\PYG{p}{:}
+                        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}speed\PYGZus{}esp32\PYGZdq{}}\PYG{p}{]}\PYG{o}{=\PYGZhy{}}\PYG{l+m+mf}{1.}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{publish\PYGZus{}brain\PYGZus{}status}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n}{msg} \PYG{o}{=} \PYG{n}{String}\PYG{p}{()}
+        \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{o}{=}\PYG{n}{json}\PYG{o}{.}\PYG{n}{dumps}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publisher\PYGZus{}brain}\PYG{o}{.}\PYG{n}{publish}\PYG{p}{(}\PYG{n}{msg}\PYG{p}{)}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{send\PYGZus{}stop}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vmax} \PYG{o}{=} \PYG{l+m+mf}{0.}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse} \PYG{o}{=} \PYG{l+m+mf}{0.}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{on\PYGZus{}off} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{auto\PYGZus{}manu} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}stop\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{cmd} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}s:}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ser}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n}{cmd}\PYG{o}{.}\PYG{n}{encode}\PYG{p}{())}
+        \PYG{c+c1}{\PYGZsh{}data = struct.pack(\PYGZsq{}\PYGZlt{}Hh\PYGZsq{}, 0, 0)}
+        \PYG{c+c1}{\PYGZsh{}self.ser.write(data)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}angle}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{)}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{send\PYGZus{}forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,}\PYG{n}{speed}\PYG{p}{):}
+        \PYG{n}{cmd} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}f:}\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{speed}\PYG{o}{*}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{speed\PYGZus{}scale}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ser}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n}{cmd}\PYG{o}{.}\PYG{n}{encode}\PYG{p}{())}
+        \PYG{c+c1}{\PYGZsh{}data = struct.pack(\PYGZsq{}\PYGZlt{}Hh\PYGZsq{}, 1, int(speed))}
+        \PYG{c+c1}{\PYGZsh{}self.ser.write(data)}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{send\PYGZus{}backward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,}\PYG{n}{speed}\PYG{p}{):}
+        \PYG{n}{cmd} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}b:}\PYG{l+s+si}{\PYGZob{}}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{speed}\PYG{o}{*}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{speed\PYGZus{}scale}\PYG{p}{)}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ser}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n}{cmd}\PYG{o}{.}\PYG{n}{encode}\PYG{p}{())}
+        \PYG{c+c1}{\PYGZsh{}data = struct.pack(\PYGZsq{}\PYGZlt{}Hh\PYGZsq{}, 2, int(speed))}
+        \PYG{c+c1}{\PYGZsh{}self.ser.write(data)}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{send\PYGZus{}angle}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,}\PYG{n}{angle}\PYG{p}{):}
+        \PYG{n}{cmd} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}a:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{angle}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{ser}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n}{cmd}\PYG{o}{.}\PYG{n}{encode}\PYG{p}{())}
+        \PYG{c+c1}{\PYGZsh{}data = struct.pack(\PYGZsq{}\PYGZlt{}Hh\PYGZsq{}, 3, int(angle))}
+        \PYG{c+c1}{\PYGZsh{}self.ser.write(data)}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{camera\PYGZus{}callback}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{msg}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{on\PYGZus{}off} \PYG{o}{==} \PYG{l+m+mi}{1}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}msg} \PYG{o}{=} \PYG{n}{json}\PYG{o}{.}\PYG{n}{loads}\PYG{p}{(}\PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}msg}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}u1\PYGZdq{}}\PYG{p}{]}\PYG{o}{!=}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}1\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{x1}\PYG{o}{=}\PYG{n+nb}{float}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}msg}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}x1\PYGZdq{}}\PYG{p}{])}
+                \PYG{n}{y1}\PYG{o}{=}\PYG{n+nb}{float}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}msg}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}y1\PYGZdq{}}\PYG{p}{])}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{angle} \PYG{o}{=} \PYG{l+m+mf}{90.} \PYG{o}{\PYGZhy{}} \PYG{n}{math}\PYG{o}{.}\PYG{n}{atan2}\PYG{p}{(}\PYG{n}{y1}\PYG{p}{,}\PYG{n}{x1}\PYG{p}{)} \PYG{o}{/} \PYG{n}{math}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{l+m+mf}{180.}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vmax}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{p}{)}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}angle\PYGZdq{}}\PYG{p}{,}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{angle}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}vitesse\PYGZdq{}}\PYG{p}{,}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{angle} \PYG{o}{\PYGZlt{}} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{80.} \PYG{o+ow}{or} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{angle} \PYG{o}{\PYGZgt{}} \PYG{l+m+mf}{80.}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{msg}\PYG{p}{)}
+                    \PYG{k}{return} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}angle}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{angle}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{odometre} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{28000}\PYG{p}{:}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}stop}\PYG{p}{()}
+                \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{odometre} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status}\PYG{o}{=}\PYG{p}{\PYGZob{}\PYGZcb{}}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}msg}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{()}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status}\PYG{o}{.}\PYG{n}{update}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{data\PYGZus{}esp32}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}camera\PYGZus{}order\PYGZus{}time\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}msg}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}time\PYGZdq{}}\PYG{p}{]}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}brain\PYGZus{}time\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n}{time}\PYG{o}{.}\PYG{n}{time}\PYG{p}{()}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}delta\PYGZus{}cam\PYGZus{}brain\PYGZus{}time\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n}{time}\PYG{o}{.}\PYG{n}{time}\PYG{p}{()}\PYG{o}{\PYGZhy{}}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}msg}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}time\PYGZdq{}}\PYG{p}{]}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}angle\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{angle}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}odometre\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{odometre}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{brain\PYGZus{}status}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}vitesse\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publish\PYGZus{}brain\PYGZus{}status}\PYG{p}{()}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}no detection\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{if} \PYG{l+s+s2}{\PYGZdq{}redline\PYGZdq{}} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera\PYGZus{}msg}\PYG{p}{:}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}redline\PYGZdq{}}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{redline\PYGZus{}counter} \PYG{o}{+=} \PYG{l+m+mi}{1}
+                \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{redline\PYGZus{}counter} \PYG{o}{==} \PYG{l+m+mi}{6}\PYG{p}{:}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}stop}\PYG{p}{()}
+                \PYG{c+c1}{\PYGZsh{}threading.Timer(10, self.free\PYGZus{}redline\PYGZus{}locker, ()).start()}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{free\PYGZus{}redline\PYGZus{}locker}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}free redline locker\PYGZdq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{redline\PYGZus{}locker} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{redline\PYGZus{}counter} \PYG{o}{==} \PYG{l+m+mi}{5}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}stop}\PYG{p}{()}
+            \PYG{c+c1}{\PYGZsh{}pass}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{web\PYGZus{}callback}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{msg}\PYG{p}{):}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}mode\PYGZus{}auto\PYGZdq{}}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{auto\PYGZus{}manu} \PYG{o}{=} \PYG{l+m+mi}{1}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}mode auto\PYGZdq{}}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}mode\PYGZus{}manu\PYGZdq{}}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{auto\PYGZus{}manu} \PYG{o}{=} \PYG{l+m+mi}{0}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vmax} \PYG{o}{=} \PYG{l+m+mf}{0.}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}stop}\PYG{p}{()}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}mode manu\PYGZdq{}}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}engine\PYGZus{}on\PYGZdq{}}\PYG{p}{]:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vmax} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vmax\PYGZus{}init}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{on\PYGZus{}off} \PYG{o}{=} \PYG{l+m+mi}{1}
+        \PYG{k}{if} \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}engine\PYGZus{}off\PYGZdq{}}\PYG{p}{]:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}stop}\PYG{p}{()}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{on\PYGZus{}off} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{k}{if} \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{p}{[:}\PYG{l+m+mi}{4}\PYG{p}{]} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}vmax\PYGZdq{}}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vmax} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}:\PYGZdq{}}\PYG{p}{)[}\PYG{l+m+mi}{1}\PYG{p}{])}
+        \PYG{k}{if} \PYG{l+s+s2}{\PYGZdq{}manu\PYGZus{}angle\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{angle} \PYG{o}{=} \PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}:\PYGZdq{}}\PYG{p}{)[}\PYG{l+m+mi}{1}\PYG{p}{])}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}angle}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{angle}\PYG{p}{)}
+        \PYG{k}{if} \PYG{l+s+s2}{\PYGZdq{}manu\PYGZus{}speed\PYGZus{}forward\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse} \PYG{o}{=} \PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}:\PYGZdq{}}\PYG{p}{)[}\PYG{l+m+mi}{1}\PYG{p}{])}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}forward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse}\PYG{p}{)}
+        \PYG{k}{if} \PYG{l+s+s2}{\PYGZdq{}manu\PYGZus{}speed\PYGZus{}backward\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse} \PYG{o}{=} \PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}:\PYGZdq{}}\PYG{p}{)[}\PYG{l+m+mi}{1}\PYG{p}{])}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{send\PYGZus{}backward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vitesse}\PYG{p}{)}
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{main}\PYG{p}{(}\PYG{n}{args}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{):}
+    \PYG{n}{node} \PYG{o}{=} \PYG{n}{CentralBrain}\PYG{p}{()}
+    \PYG{n}{executor} \PYG{o}{=} \PYG{n}{MultiThreadedExecutor}\PYG{p}{(}\PYG{n}{num\PYGZus{}threads}\PYG{o}{=}\PYG{l+m+mi}{3}\PYG{p}{)}
+    \PYG{n}{executor}\PYG{o}{.}\PYG{n}{add\PYGZus{}node}\PYG{p}{(}\PYG{n}{node}\PYG{p}{)}
+    \PYG{n}{executor}\PYG{o}{.}\PYG{n}{spin}\PYG{p}{()}
+    \PYG{n}{node}\PYG{o}{.}\PYG{n}{destroy\PYGZus{}node}\PYG{p}{()}
+    \PYG{n}{rclpy}\PYG{o}{.}\PYG{n}{shutdown}\PYG{p}{()}
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZsq{}}\PYG{p}{:}
+    \PYG{n}{main}\PYG{p}{()}
+\end{MintedVerbatim}

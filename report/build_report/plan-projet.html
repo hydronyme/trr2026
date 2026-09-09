@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+<style>
+ /* Style the buttons that are used to open and close the accordion panel */
+.accordion {
+  background-color: #fff;
+  color: #444;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s;
+}
+
+.active, .accordion:hover {
+  background-color: #ccc;
+}
+
+.panel {
+  padding: 0 10px;
+  background-color: white;
+  display: none;
+  overflow: hidden;
+} 
+
+.level1 {
+  padding: 12px;
+  margin-block: 0.67em;
+  font-size: 2em;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-decoration-style: double;
+}
+.level2 {
+  padding: 6px;
+  margin-block: 0.67em;
+  font-size: 1.2em;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+.level3 {
+  padding: 2px;
+  margin-block: 0.67em;
+  font-size: 1.0em;
+}
+
+.code {
+ background-color : green;
+}
+</style>
+</head>
+<body>
+
+<button id="fold">tout déplier</button>
+
+<details>
+<summary>to do list</summary>
+<pre>
+- programme de démarrage normal
+- pilotage du pont H
+- plaque de séparation et le positionnement de la caméra
+- calculer l'homographie de la caméra
+- carénage de la caméra
+- carrenage de la voiture
+- vérification mécanique de la direction rectiligne de la voiture
+- utilisation de l'intelligence artificielle pour lire la ligne
+- utilisation de l'intelligence artificielle pour les trajectoires dans les courbes.
+</pre>
+</details>
+
+
+<details>
+<summary>done</summary>
+<pre>
+- programme de démarrage via web
+- programme d'arrêt via web
+- piloter la vitesse via web
+</pre>
+</details>
+
+
+
+<!----------------------------------------------------------------->
+
+<button class="accordion level1">1. Conception générale de la voiture</button>
+<div class="panel">
+
+Les composants à prendre en compte sont :
+<ol>
+<li>batterie propulsion 7,2V</li>
+<li>moteur 7V ? </li>
+<li>point H pour commande moteur</li>
+<li>servo moteur 7V</li>
+<li>compte tours 5V à 12V</li>
+<li>esp32</li>
+<li>batterie pour jetson orin nano 19V</li>
+<li>régulateur de tension pour la jetson</li>
+<li>jetson orin nano 19V</li>
+</ol>
+
+<img width='400px' src='img/1000031770.jpg'/>
+
+<p>La dimension de plaque supérieure est 21.8 x 13.6</p>
+<p>les composants de la voiture sont divisés en une partie basse et une partie haute</p>
+<p>Dans la partie basse, on trouve la partie mécanique les composantes de propulsion et de direction</p>
+<p>Dans la partie haute, on trouve la partie intelligente de la voiture.</p>
+</div>
+
+<button class="accordion level1">2. Composants électroniques du niveau bas</button>
+<div class="panel">
+
+
+<button class="accordion level2">2.1 Batterie moteur 7.2 V</button>
+<div class="panel">
+Batterie 2S 7.2V Nimh
+</div>
+
+<button class="accordion level2">2.2 Servo Moteur pour la commande de direction : Hitec D-625MW HV</button>
+<div class="panel">
+
+<p>Dans la version initiale, le servo moteur était un KONECT 0913 LVMG 55G/9KG qui nécessitait une alimentation en 5V. Afin d'éviter un transformateur, il a été remplacé par un servo qui accepte directement la tension de la batterie 7,2 V.</p>
+
+
+<button class="accordion level3">2.2.1 Caractéristiques servo SRT Standard Servo (CL6030)</button>
+<div class="panel">
+
+
+
+
+
+
+<a href="https://www.flashrc.com/fr/servos-rc-precision-fiabilite-pour-modelisme/24020-servo-digital-standard-hitec-d-625mw-hv-60g-10kgcm-013s-60-669962366250.html">link</a>
+
+<BR>
+<img src="img/servo-digital-standard-hitec-d-625mw-hv-60g-10kgcm-013s-60.jpg" width="200px"/>
+
+<p>Les servos ultra-rapides HS D-625MW HITEC D-Series offrent la plus haute résolution sur le marché aujourd'hui. Les meilleures possibilités de réponse et de programmation sont réalisées grâce au MCU 32 bits et à la technologie ADC 12 bits.La série 'D' regroupe les servos HITEC fonctionnant aussi bien en tension classique (4,8/6V) que HV (8,4V). Vous pourrez donc l'alimenter comme vous le souhaitez.Le servo numérique HS-625MW Digital est entièrement programmable et offre une bonne durabilité grâce à ses robustes engrenages en acier complets et à deux roulements à billes sur l'arbre de sortie, ce qui convient particulièrement lorsque le jeu faible et la haute précision de positionnement sont importants.La longue durée de vie et la transmission conçue de manière unique en font l'un des servos les plus fiables et les plus efficaces du marché.
+</p>
+
+
+<p>Caractéristiques :</p>
+<ul>
+<li>    Largeur: 20 mm</li>
+<li>    Hauteur: 37 mm</li>
+<li>    Longueur: 40 mm</li>
+<li>    Poids: 60 gr</li>
+<li>    Type de servo: standard</li>
+<li>    Caractéristiques spéciales: large-tension numérique</li>
+<li>    Type de moteur Servos: coreless</li>
+<li>    Équipement: acier</li>
+<li>    Tension de fonctionnement en V: 4.8-8.4 V</li>
+<li>    Temps de fonctionnement s / 60 ° à 4,8 volts: 0,20</li>
+<li>    Temps de fonctionnement s / 60 ° à 6,0 volts: 0,15</li>
+<li>    Temps de fonctionnement s / 60 ° à 7.4 volts: 0.13</li>
+<li>    Couple en kgcm à 4,8 volts: 6.3</li>
+<li>    Couple en kgcm à 6,0 volts: 8.8</li>
+<li>    Couple en kgcm à 7,4 volts: 10</li>
+<li>    Denture: 25T</li>
+<li>    Roulement à billes: oui</li>
+<li>    Étanche: non</li>
+</ul>
+
+</div class="level3">
+
+<button class="accordion level3">2.2.2 connexion Jetson</button>
+<div class="panel">
+
+
+<details>
+<summary>Signal PWM requis</summary>
+<pre>
+Le servo standard attend :
+
+Fréquence : 50 Hz (Période = 20 ms)
+
+Impulsion :
+
+~1 ms → 0°
+~1.5 ms → 90°
+~2 ms → 180°
+</pre>
+</details>
+
+
+
+<details>
+<summary>code esp32</summary>
+<pre><code>
+#include <ESP32Servo.h>
+
+static const int servoPin = 18;
+
+Servo servo1;
+
+void setup() {
+
+  Serial.begin(115200);
+  servo1.attach(servoPin);
+}
+
+void loop() {
+  for(int posDegrees = 0; posDegrees <= 180; posDegrees++) {
+    servo1.write(posDegrees);
+    Serial.println(posDegrees);
+    delay(20);
+  }
+
+  for(int posDegrees = 180; posDegrees >= 0; posDegrees--) {
+    servo1.write(posDegrees);
+    Serial.println(posDegrees);
+    delay(20);
+  }
+}
+</code></pre>
+</details>
+
+
+
+<details>
+<summary>code jetson</summary>
+<pre><code>
+import serial
+import time
+
+ser = serial.Serial('/dev/ttyUSB0', 115200)
+time.sleep(2)
+
+def set_angle(angle):
+    cmd = f"{angle}\n"
+    ser.write(cmd.encode())
+
+set_angle(0)
+time.sleep(2)
+set_angle(90)
+time.sleep(2)
+set_angle(180)
+</code></pre>
+</details>
+
+</div class="level3">
+
+
+</div class="level2">
+
+
+
+
+<button class="accordion level2">2.3 Compte-tours</button>
+<div class="panel">
+
+
+OMRON E6A2-CWZ3C Rotary Encoder.
+<ul>
+<li>Red 5 to 12 V DC</li>
+<li>Black : 0V</li>
+<li>White: OUT A</li>
+<li>Green : OUT B</li>
+<li>Yellow : OUT Z</li>
+</ul>
+
+	<a href="https://www.ia.omron.com/product/item/2368/">compte tours</a>
+	<p>Rotary Encoder, Incremental, External Diameter: 25 dia., NPN open collector output, 200 P/R, 5 to 12 VDC, Phases A/B/Z, Pre-wired model, 2 m</p>
+</div class="level2">
+
+
+<button class="accordion level2">2.4 Pilotage du moteur avec un Pont-H : BTS7980</button>
+<div class="panel">
+
+<p>Initialement, le pont H utilisé était un L298N mais l'intensité maximale de ce driver est limité à 2A, une valeur insuffisante pour le moteur qui peut tirer jusqu'à 10A.
+<p>
+Le pont en H BTS7980 permet de piloter un moteur qui nécessite beaucoup de courant. Cette carte est composée de 2 demi-pont en H BTS7960 qui permettent de supporter un courant jusqu'à 43A sous une tension entre 5,5V et 27V.
+
+Les signaux de commandes sont isolés par un 74HC244 et ce qui permet de le piloter aussi bien en 3,3V ou en 5V
+
+</p>
+
+<table>
+<tr><th>Pin</th><th>Nom</th><th>Fonction</th></tr>
+<tr><td>1</td><td>RPMW</td><td>Forward Level, PWM signal actif à l'état haut</td></tr>
+<tr><td>2</td><td>LPWM</td><td>Reverse Level, PWM signal actif à l'état haut</td></tr>
+<tr><td>3</td><td>R_EN</td><td>Forward Enable, signal actif à l'état haut</td></tr>
+<tr><td>4</td><td>L_EN</td><td>Reverse Enable, signal actif à l'état haut</td></tr>
+<tr><td>5</td><td>R_IS</td><td>Forward Drive, sortie Alarme consommation</td></tr>
+<tr><td>6</td><td>L_IS</td><td>Reverse Drive, sortie Alarme consommation</td></tr>
+<tr><td>7</td><td>VCC</td><td>Alimentation +5V</td></tr>
+<tr><td>8</td><td>GND</td><td>Masse</td></tr>
+</table>
+
+
+<BR>
+<img src="img/TBS7960-Pinout.jpg" width="400px"/>
+<BR>
+
+<table>
+<tr><th>PIN 1</th><th>PIN 2</th><th>PINS 3 & 4</th><th>Motor Output</th></tr>
+<tr><td>PWM (20 kHz, 3.3V amplitude)</td><td>0 volts</td><td>3.3 volts</td><td>Variable speed Forward</td></tr>
+<tr><td>0 volts</td><td>PWM (20 kHz, 3.3V amplitude)</td><td>3.3 volts</td><td>Variable speed Reverse</td></tr>
+</table>
+
+<button class="accordion level3">2.4.1 Connexion entre L298N et ESP32</button>
+<div class="panel">
+<p>Connexion</p>
+<table>
+<tr><th>L298N</th><th>ESP32</th></tr>
+<tr><td>ENA</td><td>GPIO PWM (ex: 25)</td></tr>
+<tr><td>IN1</td><td>GPIO (ex: 26)</td></tr>
+<tr><td>IN2</td><td>GPIO (ex: 27)</td></tr>
+<tr><td>GND</td><td>GND commun</td></tr>
+</table>
+
+<p>Logique de commande</p>
+<table>
+<tr><th>IN1</th><th>IN2</th><th>Action</th></tr>
+<tr><td>1</td><td>0</td><td>Sens 1</td></tr>
+<tr><td>0</td><td>1</td><td>Sens 2</td></tr>
+<tr><td>0</td><td>0</td><td>Stop</td></tr>
+<tr><td>1</td><td>1</td><td>Frein</td></tr>
+</table>
+
+<details>
+<summary>Code Jetson</summary>
+
+<code><pre>
+import serial
+ser = serial.Serial('/dev/ttyUSB0', 115200)
+
+ser.write(b'F100\n')  # Forward 100%
+ser.write(b'B050\n')  # Backward 50%
+ser.write(b'S\n')     # Stop
+</pre></code>
+</details>
+
+<details>
+<summary>Code ESP32</summary>
+<pre>
+/*
+IBT-2 Motor Control Board driven by Arduino.
+ 
+Speed and direction controlled by a potentiometer attached to analog input 0.
+One side pin of the potentiometer (either one) to ground; the other side pin to +5V
+ 
+Connection to the IBT-2 board:
+IBT-2 pin 1 (RPWM) to Arduino pin 5(PWM)
+IBT-2 pin 2 (LPWM) to Arduino pin 6(PWM)
+IBT-2 pins 3 (R_EN), 4 (L_EN), 7 (VCC) to Arduino 5V pin
+IBT-2 pin 8 (GND) to Arduino GND
+IBT-2 pins 5 (R_IS) and 6 (L_IS) not connected
+*/
+ 
+int SENSOR_PIN = 0; // center pin of the potentiometer
+ 
+int RPWM_Output = 5; // Arduino PWM output pin 5; connect to IBT-2 pin 1 (RPWM)
+int LPWM_Output = 6; // Arduino PWM output pin 6; connect to IBT-2 pin 2 (LPWM)
+ 
+void setup()
+{
+  pinMode(RPWM_Output, OUTPUT);
+  pinMode(LPWM_Output, OUTPUT);
+}
+ 
+void loop()
+{
+  int sensorValue = analogRead(SENSOR_PIN);
+ 
+  // sensor value is in the range 0 to 1023
+  // the lower half of it we use for reverse rotation; the upper half for forward rotation
+  if (sensorValue < 512)
+  {
+    // reverse rotation
+    int reversePWM = -(sensorValue - 511) / 2;
+    analogWrite(LPWM_Output, 0);
+    analogWrite(RPWM_Output, reversePWM);
+  }
+  else
+  {
+    // forward rotation
+    int forwardPWM = (sensorValue - 512) / 2;
+    analogWrite(LPWM_Output, forwardPWM);
+    analogWrite(RPWM_Output, 0);
+  }
+}
+</pre>
+</details>
+
+Micro-Python ESP32
+<pre>
+from machine import UART
+from dcmotor import DCMotor 
+from machine import Pin, PWM
+from time import sleep     
+import time
+
+frequency = 15000       
+pin1 = Pin(5, Pin.OUT)    
+pin2 = Pin(4, Pin.OUT)  
+enable = PWM(Pin(18), frequency)  
+dc_motor = DCMotor(pin1, pin2, enable)      
+dc_motor = DCMotor(pin1, pin2, enable, 350, 1023)
+
+while True:
+    dc_motor.forward(100) # le moteur tourne
+    time.sleep(1)
+    dc_motor.stop() # stop le moteur
+    time.sleep(1)
+    dc_motor.backwards(100) # le moteur tourne dans le sens inverse
+    time.sleep(1)
+    dc_motor.stop() # stop le moteur
+    time.sleep(1)
+</pre>
+
+</div class="level3">
+
+
+<button class="accordion level3">2.4.2 Alternatives</button>
+<div class="panel">
+
+Alternatives modernes pour moteurs DC (brushed)
+🔹 TB6612FNG
+
+1,2 A par canal (3,2 A en pic)
+
+Très faible chute de tension (MOSFET)
+
+Compact, efficace
+
+👉 Remplacement direct le plus courant du L298N
+
+🔹 DRV8833
+
+1,5 A par canal
+
+Fonctionne dès 2,7 V
+
+Très adapté aux petits robots et projets sur batterie
+
+🔹 DRV8871
+
+Jusqu’à 3,6 A
+
+Protection thermique et contre les surintensités
+
+Idéal moteurs DC plus puissants
+
+🔹 BTS7960
+
+Jusqu’à 43 A (module basé sur puce automobile)
+
+Pour moteurs 12 V / 24 V très puissants
+
+</div class="level3">
+
+</div class="level2">
+    
+<button class="accordion level2">2.5 Moteur propulsion : MST M54-26T</button>
+<div class="panel">
+<p>Moteur MST à balais M54-26T</p>
+
+<ul>
+<li>Tension : 6.0V~8.4V</li>
+<li>Régime : 17500 t/mn</li>
+<li>Couple : 264 g-cm</li>
+</ul>
+	Quelle est la puissance du moteur ?
+	Intensité en pointe jusqu'à 10 A
+<BR>	
+<img src="img/mst-moteur-charbon-m54-26t-601010.jpg" width="200px"/>
+</div class="level2">
+
+<button class="accordion level2">2.6 ESP32</button>
+<div class="panel">
+
+<p>ELEGOO 2PCS ESP32 Carte de développement Type-C, 2,4 GHz WiFi + Bluetooth Dual Core Microcontrôleur pour Arduino, Support MicroPython, NodeMCU, AP/STA/AP+STA, Puce CP2102</p>
+
+<a href="https://linuxhint.com/esp32-pinout-reference/">ESP32 pin out</a>
+
+<img src="img/ESP32_71B7U8JGXAL._SL1500_.jpg" width="400px"/>
+
+<BR>
+<img src="img/ESP32-DOIT-DEV-KIT-v1-pinout-mischianti.png" width="800px"/>
+
+
+<p>    Capacités de traitement puissantes : la carte de développement ELEGOO ESP-WROOM-32 intègre un processeur 32 bits double cœur fonctionnant jusqu'à 240 MHz, offrant une puissance de traitement impressionnante.
+    Connectivité sans fil : la carte de développement ESP-32S intègre des capacités Wi-Fi et Bluetooth, prenant en charge le Wi-Fi et le Bluetooth 2,4 GHz, permettant une large gamme d'options de communication et de connectivité sans fil.
+    Efficacité énergétique : la puce présente une conception à faible consommation permettant un réglage dynamique de la puissance en mettant à l'échelle la fréquence d'horloge sur différents modes de fonctionnement. Cela rend la carte de développement adaptée aux appareils IoT (Internet des objets) alimentés par batterie.
+    Interfaces périphériques polyvalentes : la carte de développement offre un riche ensemble d'interfaces périphériques, notamment GPIO, UART, SPI, I2C, etc., permettant une connectivité facile à une large gamme de capteurs.
+    Prend en charge les mises à niveau du micrologiciel en direct : la puce ESP-WROOM-32 dispose de capacités de mise à niveau du micrologiciel en direct, permettant aux développeurs de continuer à mettre à jour et à optimiser le micrologiciel même après la sortie du produit.
+</p>
+
+<pre>
+Pour identifier la bonne configuration de l'ESP32 :
+		./arduino-cli board listall esp32
+
+Pour en connaître les détails :
+		./arduino-cli board details --fqbn esp32:esp32:esp32
+</pre>
+</div class="level2">
+
+
+</div class="level1">
+
+<!----------------------------------------------------------------->
+
+<button class="accordion level1">3. Composants électroniques du niveau haut</button>
+<div class="panel">
+
+
+<button class="accordion level2">3.1 Batterie pour la jetson orin nano</button>
+<div class="panel">
+
+alimentation en 19V de la jetson orin nano
+puissance max = 100 W
+Energie = Wh
+
+Chargeur Portable Power Bank, 30 000 MAh 65 W PD, Batterie Externe à Rapide avec Sortie 12 V 15 V 19 V DC, Sortie USB 5 V et Sortie de Type C pour Téléphone PC MP3 MP4
+Marque : Depisuta
+Taille du produit : env. 16x7x4cm
+Poids brut : 870g
+Capacité réelle : 1 batterie au lithium 8650 30000mAh (incluse) 
+
+
+Krisdonia 100W USB-C PD Batterie Externe pour Ordinateur Portable, Chargeur Portable 64000mAh [PD 3.0 + DC 12/16/20/24V + QC3.0] pour Ordinateur Portable, Tablette, Smartphone, projecteur et Plus 
+
+
+Batterie externe améliorée 70 000 mAh, grande batterie externe, batterie externe pour téléphone portable PD 30 W, charge rapide, 5 sorties USB C et 2 entrées avec écran LED, chargeur portable pour
+Marque : Liahomco
+
+
+
+1070 Grammes 
+22 x 15 x 4 centimètres 
+
+CY Câble d'extension de charge Câble 100 W Type C USB-C Entrée vers 20 V DC 5,5 x 2,5 mm Puissance de sortie 20 V 5 A 65 W Câble de charge PD Compatible avec ordinateur portable
+
+</div class="level2">
+
+<button class="accordion level2">3.2 Régulateur de tension XL4016E1</button>
+<div class="panel">
+
+<p>Digital PWM Adjustable DC-DC Step down</p>
+
+<p>version HW-263</p>
+
+<p>
+The XL4016 is a 180KHz fixed frequency PWM buck (step-down) DC/DC converter, capable of driving an 8A load with high efficiency, low ripple, and excellent line and load regulation. This module helps you to power a high power load with stable voltage.
+</p>
+<p>Features:</p>
+<ul>
+<li>Input Voltage: DC 4V ~ 38V</li>
+<li>Output Voltage: DC 1.25V ~ 36V</li>
+<li>Current: 8A (for long time: 5A)</li>
+<li>Switching Frequency: 180KHz</li>
+<li>Maximum power: 200W</li>
+<li>Conversion efficiency: 94%</li>
+<li>Short circuit protection</li>
+</ul>
+
+<img src="img/dc-dc_8a_buck_regulator_module_xl4016e1_1.jpg" width="600"/>
+
+</div class="level2">
+
+
+
+<button class="accordion level2">3.3 Caméra CSI</button>
+<div class="panel">
+<button class="accordion level3">3.3.1 Description du produit : IMX219-D160</button>
+<div class="panel">
+This is a camera module (without driver PCB) compatible with the official Raspberry Pi Camera Board V2, with 8-megapixel IMX219 sensor and features 160 degree field of view.
+
+<pre>
+
+Camera specifications
+
+    CMOS size : 1/4inch
+    Aperture (F) : 2.35
+    Focal Length : 3.15mm
+    Angle of View (diagonal) : 160 degree
+    Distortion: <14.3%
+    Focusing Range: 20cm ~ infinity
+
+3280 x2464 still picture resolution
+
+Support 1080p30, 720p60 and 640x480p90 video record
+</pre>
+</div class="level3">
+
+<button class="accordion level3">3.3.2 Configuration de la caméra sur la Jetson Orin Nano</button>
+<div class="panel">
+<p>Pour configurer la caméra CSI</p>
+<a href="https://github.com/jetsonhacks/CSI-Camera/blob/master/README.md">link1</a>
+
+<a href="https://docs.nvidia.com/jetson/archives/l4t-archived/l4t-3275/index.html#page/Tegra%20Linux%20Driver%20Package%20Development%20Guide/hw_setup_jetson_io.html#wwpID0E02D0HA">link2</a>
+
+<p>La commande suivante devrait lister la caméra :</p>
+<p>v4l2-ctl --list-devices</p>
+<p>ffplay /dev/video0</p>
+</div class="level3">
+
+
+<button class="accordion level3">3.3.3 Calibration d'image de la caméra</button>
+<div class="panel">
+
+<p>Dans le modèle du trou d'aiguille, on modélise la projection de l'espace réel vers la caméra par une droite qui passe par le trou d'aiguille et qui est aussi l'origine du repère. Son équation est définie par :</p>
+
+
+$$\left\{ \begin{array}{cl}
+x_v & = \ \frac{\beta_u}{\beta_v} \frac{u-u_O}{v-v_h} \\
+y_v & = \ \ \beta_v \frac{1}{v-v_h}
+\end{array} \right.
+$$
+
+
+$$\left\{ \begin{array}{cl}
+x & = \ a \times t \\
+y & = \ b \times t \\
+z & = \ c \times t
+\end{array} \right.
+$$
+<p>Le point de l'espace réel de coordonnées \((x_0,y_0,z_0)\) est associé par convention au paramètre \(t=1\). On a ainsi \((x_0=a,y_0=b,z_0=c)\). De plus, le point de l'espace réel se déplace sur un plan horizontal avec \(z_0=-h\). Ce point est projeté sur le plan focal de la caméra, sur le point de coordonnées \((x_1,y_1,z_1)\) avec \(x_1=-f\).
+</p>
+$$\left\{ \begin{array}{cl}
+-f & = \ x_0 \times t \\
+y_1 & = \ y_0 \times t \\
+z_1 & = \ -h \times t
+\end{array} \right.
+$$
+
+<p>Ainsi, on peut retrouver la position du point dans le monde réel à partir de la position dans la caméra :</p>
+$$\left\{ \begin{array}{cl}
+x_0 & = \  \frac{h \times f}{z_1} \\
+y_0 & = \ - h \times \frac{y_1}{z_1}
+\end{array} \right.
+$$
+
+<p>
+Pour calibrer la caméra, on se sert de la largeur connue de la ligne blanche.
+</p>
+<pre>
+On connaît la dimension de la ligne blanche. Ainsi, il est possible de calibrer la caméra par homographie.
+
+La plupart des caméras suivent le modèle de caméra à trou d’aiguille (pinhole). 
+Dans ce modèle, un point 3D (X,Y,Z) est projeté sur un point image (x,y), selon la relation :
+x=f X/Z et y=fY/Z où f est la distance focale.
+
+
+On approxime la ligne détectée par un polynôme : x(y)=ay^2+by+c
+
+
+Le rayon de courbure R est :
+
+R=(1+(2ay+b)2)^(3/2)  / |2a|
+	​
+On le calcule généralement en bas de l’image (proche du véhicule).
+</pre>
+
+<pre>
+https://fr.wikipedia.org/wiki/Calibration_de_caméra
+
+Transformation en vue "Bird's Eye View" (vue du dessus)
+</pre>
+</div class="level3">
+
+
+</div class="level2">
+
+
+
+
+<button class="accordion level2">3.4 Bouton d'arrêt d'urgence</button>
+<div class="panel">
+
+
+Interrupteur à levier ou à bascule On / Off / On double circuits avec six borniers à vis
+
+</div class="level2">
+
+
+<button class="accordion level2">3.5 Jetson Orin Nano Developer Kit</button>
+<div class="panel">
+<pre>
+flasher avec NVIDIA SDK Manager
+installer firefox avec sudo apt install firefox
+installer isaac ROS (release 3-2)
+</pre>
+</div class="level2">
+
+
+</div class="level1">
+
+<!----------------------------------------------------------------->
+
+<button class="accordion level1">4. Schémas électrique</button>
+<div class="panel">
+
+<img src="img/schema_electrique.svg" width="600" />
+
+
+<p>https://docs.easyeda.com/en/</p>
+<p>schéma électrique de l'installation</p>
+Connexion :
+<ul>
+<li>Rouge → +5 V du BEC</li>
+<li>Noir → GND commun (BEC + Arduino)</li>
+<li>Jaune → Pin digitale Arduino (ex: D9)</li>
+</ul>
+
+<p>https://www.tinkercad.com/</p>
+</div class="level1">
+
+
+<!----------------------------------------------------------------->
+
+
+
+<button class="accordion level1">5. Programmation</button>
+<div class="panel">
+
+<button class="accordion level2">5.1 jetson</button>
+<div class="panel">
+	<a>https://developer.nvidia.com/sdk-manager</a>
+	<a>https://developer.nvidia.com/embedded/jetpack-archive</a>
+</div class="level2">
+
+
+<button class="accordion level2">5.2 arduino CLI</button>
+<div class="panel">
+<a>https://docs.arduino.cc/arduino-cli/installation/#download</a>
+
+
+<a>https://dev.to/stepanvrany/esp32-with-arduino-cli-36mh</a>
+
+
+</div class="level2">
+
+
+
+<button class="accordion level2">5.3 ROS2</button>
+<div class="panel">
+https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html
+</div class="level2">
+
+
+<button class="accordion level2">5.4 architecture de contrôle</button>
+<div class="panel">
+
+<img src="img/schema_ros2.svg" width="600" />
+<pre>
+Architecture de contrôle typique
+Option simple :
+
+Jetson envoie PWM directement.
+
+Option robuste (recommandée) :
+
+Jetson envoie :
+
+position cible
+
+vitesse cible
+
+ESP32 calcule :
+
+PID moteur
+
+position via codeur
+
+PWM réel
+
+👉 Beaucoup plus stable.
+</pre>
+</div class="level2">
+
+
+<button class="accordion level2">5.5 code ESP32</button>
+<div class="panel">
+
+<pre><code>
+/************************************************************
+  ESP32 Firmware
+  Servo + L298N + Encoder + PID
+************************************************************/
+
+// ================= GPIO =================
+#define SERVO_PIN 18
+
+#define MOTOR_PWM_PIN 25
+#define MOTOR_IN1     26
+#define MOTOR_IN2     27
+
+#define ENC_A 34
+#define ENC_B 35
+
+// ================= PWM =================
+#define SERVO_CH 0
+#define MOTOR_CH 1
+
+#define SERVO_FREQ 50
+#define MOTOR_FREQ 20000
+
+#define PWM_RES_SERVO 16
+#define PWM_RES_MOTOR 10
+
+// ================= Encoder =================
+volatile long encoderCount = 0;
+
+// ================= PID =================
+float Kp = 1.2;
+float Ki = 0.0;
+float Kd = 0.02;
+
+float targetPosition = 0;
+float integral = 0;
+float previousError = 0;
+
+float output = 0;
+const float integralLimit = 10000;
+
+unsigned long lastPID = 0;
+const int PID_INTERVAL = 5; // ms
+
+// ================= Encoder ISR =================
+void IRAM_ATTR handleEncoderA() {
+  if (digitalRead(ENC_A) == digitalRead(ENC_B))
+    encoderCount++;
+  else
+    encoderCount--;
+}
+
+// ================= Servo =================
+void setServoAngle(int angle) {
+  angle = constrain(angle, 0, 180);
+
+  // 1ms -> 3277 ; 2ms -> 6553 (16 bits @ 20ms period)
+  uint32_t duty = map(angle, 0, 180, 3277, 6553);
+  ledcWrite(SERVO_CH, duty);
+}
+
+// ================= Motor =================
+void setMotorOutput(float pwm) {
+  pwm = constrain(pwm, -1023, 1023);
+
+  if (pwm > 0) {
+    digitalWrite(MOTOR_IN1, HIGH);
+    digitalWrite(MOTOR_IN2, LOW);
+    ledcWrite(MOTOR_CH, pwm);
+  } else if (pwm < 0) {
+    digitalWrite(MOTOR_IN1, LOW);
+    digitalWrite(MOTOR_IN2, HIGH);
+    ledcWrite(MOTOR_CH, -pwm);
+  } else {
+    digitalWrite(MOTOR_IN1, LOW);
+    digitalWrite(MOTOR_IN2, LOW);
+    ledcWrite(MOTOR_CH, 0);
+  }
+}
+
+// ================= PID =================
+void updatePID() {
+  float position = encoderCount;
+  float error = targetPosition - position;
+
+  integral += error;
+  integral = constrain(integral, -integralLimit, integralLimit);
+
+  float derivative = error - previousError;
+
+  output = Kp * error + Ki * integral + Kd * derivative;
+
+  output = constrain(output, -1023, 1023);
+
+  setMotorOutput(output);
+
+  previousError = error;
+}
+
+// ================= Serial Parser =================
+void parseCommand(String cmd) {
+  cmd.trim();
+
+  if (cmd.startsWith("S,")) {
+    int angle = cmd.substring(2).toInt();
+    setServoAngle(angle);
+  }
+
+  else if (cmd.startsWith("M,")) {
+    targetPosition = cmd.substring(2).toFloat();
+  }
+
+  else if (cmd.startsWith("P,")) {
+    int first = cmd.indexOf(',');
+    int second = cmd.indexOf(',', first + 1);
+    int third = cmd.indexOf(',', second + 1);
+
+    Kp = cmd.substring(first + 1, second).toFloat();
+    Ki = cmd.substring(second + 1, third).toFloat();
+    Kd = cmd.substring(third + 1).toFloat();
+  }
+
+  else if (cmd == "STOP") {
+    setMotorOutput(0);
+  }
+
+  else if (cmd == "R") {
+    Serial.print("POS:");
+    Serial.print(encoderCount);
+    Serial.print(",OUT:");
+    Serial.println(output);
+  }
+}
+
+// ================= Setup =================
+void setup() {
+
+  Serial.begin(115200);
+
+  pinMode(MOTOR_IN1, OUTPUT);
+  pinMode(MOTOR_IN2, OUTPUT);
+
+  pinMode(ENC_A, INPUT_PULLUP);
+  pinMode(ENC_B, INPUT_PULLUP);
+
+  attachInterrupt(digitalPinToInterrupt(ENC_A), handleEncoderA, CHANGE);
+
+  // Servo PWM
+  ledcSetup(SERVO_CH, SERVO_FREQ, PWM_RES_SERVO);
+  ledcAttachPin(SERVO_PIN, SERVO_CH);
+
+  // Motor PWM
+  ledcSetup(MOTOR_CH, MOTOR_FREQ, PWM_RES_MOTOR);
+  ledcAttachPin(MOTOR_PWM_PIN, MOTOR_CH);
+
+  lastPID = millis();
+}
+
+// ================= Loop =================
+void loop() {
+
+  if (Serial.available()) {
+    String cmd = Serial.readStringUntil('\n');
+    parseCommand(cmd);
+  }
+
+  if (millis() - lastPID >= PID_INTERVAL) {
+    updatePID();
+    lastPID = millis();
+  }
+}
+</code></pre>
+</div class="level2">
+
+
+<button class="accordion level2">5.5 démarrage / arrêt de la course</button>
+<div class="panel">
+
+sudo nano /etc/systemd/system/ros2_start.service
+[Unit]
+Description=ROS2 Startup Service
+After=network.target
+
+[Service]
+User=ton_user
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/ton_user/ros2_ws/install/setup.bash && ros2 run mon_package mon_executable"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl enable ros2_start.service
+
+sudo systemctl start ros2_start.service
+journalctl -u ros2_start.service -f
+
+</div class="level2">
+
+
+<button class="accordion level2">5.6 utiliation de l'IA pour l'analyse des images</button>
+<div class="panel">
+Comment utiliser l'intelligence artificielle pour analyser dans les images d'une caméra la position d'une ligne blanche large de 5 cm ?
+</div class="level2">
+
+
+<button class="accordion level2">5.7 optimisation de la jetson</button>
+<div class="panel">
+<pre>
+Run the following command to set the to power to MAX settings. See Power Mode Controls for more details.
+
+sudo /usr/sbin/nvpmodel -m 0
+
+pour désactiver le sommeil du wifi :
+sudo iw dev wlP1p1s0 set power_save off
+</pre>
+</div class="level2">
+
+
+</div class="level1">
+
+
+<!----------------------------------------------------------------->
+
+<button class="accordion level1">6. Chassis</button>
+<div class="panel">
+
+protection contre les chocs de la jetson
+</div class="level1">
+
+
+<!----------------------------------------------------------------->
+
+
+<script>
+var acc = document.getElementsByClassName("accordion");
+var i;
+
+for (i = 0; i < acc.length; i++) {
+  acc[i].addEventListener("click", function() {
+    /* Toggle between adding and removing the "active" class,
+    to highlight the button that controls the panel */
+    this.classList.toggle("active");
+
+    /* Toggle between hiding and showing the active panel */
+    var panel = this.nextElementSibling;
+    if (panel.style.display === "block") {
+      panel.style.display = "none";
+    } else {
+      panel.style.display = "block";
+    }
+  });
+} 
+
+document.getElementById("fold").addEventListener("click", function()
+	{
+		var acc = document.getElementsByClassName("accordion");
+		for (i = 0; i < acc.length; i++) {
+			let panel=acc[i].nextElementSibling;
+			panel.style.display = "block";		
+		}
+	});
+
+
+</script>
+
+</body>
+</html>
+

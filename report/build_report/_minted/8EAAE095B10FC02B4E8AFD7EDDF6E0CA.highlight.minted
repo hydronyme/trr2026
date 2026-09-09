@@ -1,0 +1,36 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{launch}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{LaunchDescription}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{launch\PYGZus{}ros.actions}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{Node}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{launch.actions}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{ExecuteProcess}
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{generate\PYGZus{}launch\PYGZus{}description}\PYG{p}{():}
+    \PYG{n}{bag\PYGZus{}record} \PYG{o}{=} \PYG{n}{ExecuteProcess}\PYG{p}{(}
+        \PYG{n}{cmd}\PYG{o}{=}\PYG{p}{[}
+            \PYG{l+s+s1}{\PYGZsq{}ros2\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}bag\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}record\PYGZsq{}}\PYG{p}{,}
+            \PYG{l+s+s1}{\PYGZsq{}/course\PYGZus{}v1/brain\PYGZus{}status\PYGZsq{}}
+        \PYG{p}{],}
+        \PYG{n}{output}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}screen\PYGZsq{}}
+    \PYG{p}{)}
+
+    \PYG{n}{robot\PYGZus{}node} \PYG{o}{=} \PYG{p}{[}
+        \PYG{n}{Node}\PYG{p}{(}
+            \PYG{n}{package}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}course\PYGZus{}v1\PYGZsq{}}\PYG{p}{,}
+            \PYG{n}{namespace}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}course\PYGZus{}v1\PYGZsq{}}\PYG{p}{,}
+            \PYG{n}{executable}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}camera\PYGZsq{}}\PYG{p}{,}
+        \PYG{p}{),}
+        \PYG{n}{Node}\PYG{p}{(}
+            \PYG{n}{package}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}course\PYGZus{}v1\PYGZsq{}}\PYG{p}{,}
+            \PYG{n}{namespace}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}course\PYGZus{}v1\PYGZsq{}}\PYG{p}{,}
+            \PYG{n}{executable}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}web\PYGZsq{}}\PYG{p}{,}
+        \PYG{p}{),}
+        \PYG{n}{Node}\PYG{p}{(}
+            \PYG{n}{package}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}course\PYGZus{}v1\PYGZsq{}}\PYG{p}{,}
+            \PYG{n}{namespace}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}course\PYGZus{}v1\PYGZsq{}}\PYG{p}{,}
+            \PYG{n}{executable}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}brain\PYGZsq{}}\PYG{p}{,}
+        \PYG{p}{)}
+    \PYG{p}{]}
+
+    \PYG{k}{return} \PYG{n}{LaunchDescription}\PYG{p}{(}
+        \PYG{n}{robot\PYGZus{}node} \PYG{o}{+} \PYG{p}{[}\PYG{n}{bag\PYGZus{}record}\PYG{p}{]}
+    \PYG{p}{)}
+\end{MintedVerbatim}

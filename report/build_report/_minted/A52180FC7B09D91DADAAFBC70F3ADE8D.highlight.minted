@@ -1,0 +1,4 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+./arduino\PYGZhy{}cli\PYG{+w}{ }compile\PYG{+w}{ }\PYGZhy{}\PYGZhy{}fqbn\PYG{+w}{ }esp32:esp32:esp32doit\PYGZhy{}devkit\PYGZhy{}v1\PYG{+w}{ }test01
+./arduino\PYGZhy{}cli\PYG{+w}{ }upload\PYG{+w}{ }\PYGZhy{}p\PYG{+w}{ }/dev/ttyUSB0\PYG{+w}{ }\PYGZhy{}b\PYG{+w}{ }esp32:esp32:esp32doit\PYGZhy{}devkit\PYGZhy{}v1\PYG{+w}{ }test01
+\end{MintedVerbatim}

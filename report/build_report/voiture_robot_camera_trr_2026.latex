@@ -1,0 +1,2075 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[a4paper,12pt]{book}
+\usepackage[a4paper, margin=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{svg}
+\usepackage{minted}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\setminted{
+    fontsize=\small,
+    linenos,
+    breaklines,
+    frame=lines,
+    framesep=2mm
+}
+\setcounter{secnumdepth}{3}
+\begin{document}
+% Page de titre
+\begin{titlepage}
+\centering
+  \null
+    \vfill
+    {\Huge\bfseries MontauLab - TRR 2026\par}
+    \vspace{1cm}
+    {\Large Voiture autonome pilotée par caméra\par}
+    \vspace{0.5cm}
+    {\large 2026-05-30\par}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm,height=\textheight]{img/1000036650.jpg}
+\end{figure}
+\vfill
+\null
+\end{titlepage}
+
+% Table des matières
+\tableofcontents
+\newpage
+
+
+
+%=====================================================================================
+\chapter{Introduction}
+
+
+\section{Règlement de la Tiny Toulouse Robot Race}
+
+La Tiny Toulouse Robot Race (Tiny TRR) est une course de vitesse destinée à des petits robots autonomes : le vainqueur sera celui qui aura obtenu le meilleur temps sur un parcours prédéfini.
+Les moteurs/turbines thermiques sont interdits.
+
+Le véhicule court dans la catégorie « Roulants ».  Les robots de cette catégorie doivent être mus par des roues ou des sphères. Les robots peuvent avoir une ou plusieurs roues (sphères), motorisées ou non. Les véhicules à chenilles et les aéroglisseurs sont également rangés dans cette catégorie.
+
+Il s’agit d’une course de vitesse sur 5 tours, sans obstacle sur la piste.
+
+Les robots doivent être munis d’un dispositif d’arrêt d’urgence (interrupteur poussoir rouge, interrupteur avec manche de 5 cm, …) facilement accessible. En cas de dispositif d’arrêt d’urgence télécommandé, la télécommande sera remise au juge avant le départ de chaque manche.
+
+Les procédures de départ doivent être respectées sous peine de pénalité de temps.
+
+Les robots doivent concourir aux épreuves de manière totalement autonome. Ils doivent donc être guidés et pilotés uniquement par des systèmes embarqués, sans aide d’un système externe.
+
+Ils pourront se guider à l’aide de n’importe quel type de capteur embarqué (tactile, laser, ultra son, imagerie, …), qui devront donc être placés sur le robot lui-même et dont les signaux devront être produits et traités par le robot seul.
+
+\subsection{Procédure de départ}
+
+Une fois le robot sur la piste, les seules actions humaines autorisées sont :
+
+Mise sous tension/réglages du robot par une seule personne qui pourra accéder sur la piste, dans une limite de temps de 3 minutes.
+Quand le robot est prêt, le concurrent avertit le(s) chronométreur(s). Quand le(s) chronométreur(s)
+dit ‘’PRET’’ ? le concurrent peut démarrer son robot : par bouton poussoir ou par par câble à éjecter.
+
+Le démarrage du robot peut être immédiat ou avec une temporisation maximum de 5 secondes.
+Le concurrent doit ensuite quitter immédiatement la piste.
+Le(s) chronométreur(s) déclenchera(ront) son(leur) chronomètre dès le départ du robot.
+
+\subsection{Arrivée}
+Le chronomètre sera arrêté quand le robot franchira la ligne d’arrivée.
+Le robot devra s’arrêter de manière autonome avant la fin du 6ième tour.
+
+\subsection{La piste}
+
+La piste d’une largeur de 1 mètre s’inscrit dans un rectangle de 10 x 5 m.  Les robots y évolueront dans le sens horaire. La longueur du tour de piste est de 24.30 m.
+Les bordures sont posées sur une bâche PVC.
+La piste centrale , sérigraphie noire de 5cm de large délimitant la ligne centrale blanche de 5cm, est une succession de segments de droite et de virages. 
+Les virages ont tous un rayon de courbure central de 1 mètre.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm,height=\textheight]{img/piste-1200x685.png}
+\caption{Plan de la piste}
+\end{figure}
+
+\section{Objectif du projet}
+
+Ce projet a pour objectif de construire une voiture autonome pilotée uniquement par une caméra et de gagner la course TRR. 
+Les autres matériels usuels pour piloter un véhicule autonome (sonar, lidar fixe, lidar rotatif, etc.) ont été volontairement exclu du projet
+
+Ce projet fait suite à un projet initié l'année précédente qui n'avait pas entièrement donné satisfaction en raison des performances insuffisantes de la carte Arduino utilisée pour piloter le robot.
+Ainsi, pour atteindre ses objectifs, ce projet utilise des matériels d'une gamme de performance supérieure.
+Sur le plan logiciel, il a été choisi d'utiliser l'architecture proposée par Robot Operating System (http://docs.ros.org).
+
+Ce projet est prévu pour être poursuivi l'année prochaine avec la mise en oeuvre, au contraire de cette année, d'algorithmes d'intelligence artificielle.
+
+\section{Equipe projet}
+
+Ce projet a été bâti collectivement avec tout le savoir-faire du MontauLab. Les principaux contributeurs sont :
+\begin{itemize}
+\tightlist
+\item Arnaud Boëlle : conception du projet, montage des matériels et rédaction des codes logiciels. 
+\item Sébastien Duboisset : supervision générale du projet, formation à la réalisation de la batterie, formation à la découpe laser, conseil sur les soudures. 
+\item Jean-Claude Viala : conseil sur le choix des matériels électroniques, conseil sur le code ESP32 
+\item Cyprien Siaud : initiation à onshape, conseil sur le chassis et la propulsion, lubrification des différentiels 
+\item Philippe Bonnaud : conseil sur le choix des matériels électroniques. 
+\end{itemize}
+
+Ces contributeurs étant également des concurrents à la course TRR, ont, par l'avancé de leur projet respectif, également contribué à un esprit de compétition motivant pour le projet.
+
+
+\section{Conception générale de la voiture}
+
+La voiture comprend une partie basse et une partie haute. En bas, on trouve
+la partie mécanique, les composantes de propulsion et de direction. Soit plus précisément :
+\begin{itemize}
+\tightlist
+\item chassis 
+\item batterie propulsion 7,2V
+\item moteur à charbon
+\item pont H pour commande moteur
+\item servo moteur 7V
+\item compte tours
+\item esp32
+\end{itemize}
+
+Dans la partie haute, on trouve la partie intelligente de la voiture:
+\begin{itemize}
+\tightlist
+\item batterie pour jetson orin nano 19V
+\item régulateur de tension pour la jetson
+\item jetson orin nano 19V
+\item caméra csi 
+\item carrosserie 
+\end{itemize}
+
+
+%=====================================================================================
+\chapter{Composants matériels du niveau bas}
+
+\section{Chassis}
+Le chassis, la direction Ackermann, les différentiels et le système de propulsion à quatre roues motrices ont été fournis au démarrage du projet.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=6cm,height=\textheight]{img/20260305_213113.jpg}
+\caption{Chassis, direction Ackermann, différentiels et système de propulsion}
+\end{figure}
+
+\section{Batterie moteur 7.2 V}
+
+La batterie 2S 7.2V Nimh a également été donnée au début du projet.
+
+\section{Servo moteur pour la commande de direction : SRT CL6030}
+
+Dans la version initiale, le servo moteur était un KONECT 0913 LVMG
+55G/9KG conçu pour une alimentation en 5V. Afin d'éviter un transformateur dans le niveau bas, il a été remplacé par un
+servo qui accepte directement la tension de la batterie 7,2 V.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=6cm,height=\textheight]{img/servo-srt-cl6030.jpg}
+\caption{Image du servo moteur}
+\end{figure}
+
+Le projet utilise un Servo SRT CL6030 30,0KG Coreless HV couple élevé étanche CL6030, idéal pour les véhicules 1/10 sur route et 1/8 tout-terrain.
+Le boîtier intermédiaire est en aluminium et étanche. Il a une bonne efficacité et une faible consommation d'énergie.
+Ses engrenagies sont en titane et acier pour plus de précision et de durabilité.
+Il est livré avec un connecteur JR avec câble récepteur noir long de 300 mm.
+
+\begin{itemize}
+\tightlist
+\item Convient pour 1/10 sur route et 1/8 tout-terrain.
+\item Moteur sans noyau.
+\item Voltage: 4,8V à 7,4V.
+\item Couple 30,0 Kg/cm (7,4V).
+\item Vitesse 0,11 s/60° (7,4V).
+\item Boitier en aluminium anodisé noir.
+\item Engrenage métal titane et acier.
+\item Dimensions: 41,3 x 20,5 x 38,3mm.
+\item Masse: 69 grammes.
+\item Compatible: 1/10 sur route et 1/8 tout-terrain.
+\end{itemize}
+
+\section{Compte-tours OMRON E6A2-CWZ3C}
+
+Pour mesurer l'odométrie et réguler la vitesse du moteur, on utilise un codeur rotatif incrémental OMRON E6A2-CWZ3C.
+Son diamètre extérieur est 25 mm, sortie collecteur ouvert NPN, 200 impulsions par tour (P/R), alimentation 5 à 12 V DC, phases A/B/Z, modèle précâblé.
+
+\begin{itemize}
+\tightlist
+\item Rouge 5 to 12 V DC
+\item Noir : 0V
+\item Blanc: OUT A
+\item Vert : OUT B
+\item Jaune : OUT Z
+\end{itemize}
+
+\href{https://www.ia.omron.com/product/item/2368/}{référence : https://www.ia.omron.com/product/item/2368/}
+
+\section{Pilotage du moteur avec un Pont-H : BTS7980}
+
+Initialement, le pont H utilisé était un L298N mais
+l'intensité maximale de ce driver est limitée à 2A, une
+valeur insuffisante pour le moteur qui peut demander
+jusqu'à 10A. 
+
+Le pont en H choisi permet de piloter un moteur qui nécessite plus
+de courant. Cette carte est composée de 2 demi-pont en H BTS7960 qui
+permettent de supporter un courant jusqu'à 43A sous une
+tension entre 5,5V et 27V. Les signaux de commandes sont isolés par un
+74HC244 et ce qui permet de le piloter aussi bien en 3,3V ou en 5V
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=8cm,height=\textheight]{img/TBS7960-Pinout.jpg}
+\caption{Schéma du pont H TBS7960}
+\end{figure}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule()
+Pin & Nom & Fonction \\
+\midrule()
+\endhead
+1 & RPMW & Forward Level, PWM signal actif à l' état
+haut \\
+2 & LPWM & Reverse Level, PWM signal actif à l' état
+haut \\
+3 & R\_EN & Forward Enable, signal actif à l' état
+haut \\
+4 & L\_EN & Reverse Enable, signal actif à l' état
+haut \\
+5 & R\_IS & Forward Drive, sortie Alarme consommation \\
+6 & L\_IS & Reverse Drive, sortie Alarme consommation \\
+7 & VCC & Alimentation +5V \\
+8 & GND & Masse \\
+\bottomrule()
+\end{longtable}
+
+\section{Moteur propulsion : MST M54-26T}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=6cm,height=\textheight]{img/mst-moteur-charbon-m54-26t-601010.jpg}
+\caption{photo du moteur M54-26T}
+\end{figure}
+
+La voiture utilise un moteur MST à balais M54-26T
+qui peut demander une intensité maximale de 10 A, notamment au démarrage.
+Les caractéristiques standards du moteur sont :
+\begin{itemize}
+\tightlist
+\item
+  Tension : 6.0V\textasciitilde8.4V
+\item
+  Régime : 17500 t/mn
+\item
+  Couple : 264 g-cm
+\end{itemize}
+
+\clearpage
+
+\section{ESP32}
+
+Toute la partie basse de la voiture est pilotée par un ESP32 ELEGOO 2PCS Type-C.
+La connexion avec la partie haute est faite par le port USB. Ainsi, les fonctionnalités réseaux 
+( 2,4 GHz WiFi + Bluetooth) ne sont pas utilisées.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=8cm]{img/ESP32_71B7U8JGXAL._SL1500_.jpg}\\
+\caption{photo de l'ESP32}
+\end{figure}
+
+La carte de développement ELEGOO
+ESP-WROOM-32 intègre un processeur 32 bits double cœur fonctionnant
+jusqu'à 240 MHz, offrant une bonne puissance de traitement.
+
+Efficacité énergétique : la puce présente une conception à faible
+consommation permettant un réglage dynamique de la puissance en mettant
+à l'échelle la fréquence d' horloge sur différents modes de fonctionnement. Cela rend la carte de développement
+adaptée aux appareils IoT (Internet des objets) alimentés par batterie.
+
+Interfaces périphériques polyvalentes : la carte de développement offre
+un riche ensemble d' interfaces périphériques, notamment
+GPIO, UART, SPI, I2C, etc., permettant une connectivité facile à une
+large gamme de capteurs. Prend en charge les mises à niveau du
+micrologiciel en direct : la puce ESP-WROOM-32 dispose de capacités de
+mise à niveau du micrologiciel en direct, permettant aux développeurs de
+continuer à mettre à jour et à optimiser le micrologiciel même après la
+sortie du produit.
+
+Pour faciliter le cablage à l'ESP32, le projet utilise également une carte {REF Amazon}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm,height=\textheight]{img/ESP32-DOIT-DEV-KIT-v1-pinout-mischianti.png}
+\caption{schéma de connexion pour l'ESP32}
+\end{figure}
+
+
+\section{Schéma électrique du niveau bas}
+
+N'ayant pas eu le temps de se former à tinkercad (https://www.tinkercad.com/), on propose un schéma électrique simplifié pour la partie basse:
+\begin{figure}[h]
+\centering
+\includesvg[width=12cm,height=\textheight]{img/schema_electrique.svg}
+\caption{Schéma électrique simplifié du niveau bas}
+\end{figure}
+
+https://docs.easyeda.com/en/
+
+
+%===============================================================================================
+\chapter{Composants matériels du niveau haut}
+
+Les composants ci-après sont disposés sur une plaque de bois de dimension 21.8 x 13.6 cm.
+\begin{figure}[h]
+\centering
+\includegraphics[width=8cm,height=\textheight]{img/1000036651.jpg}
+\caption{Organisation des matériels du niveau haut}
+\end{figure}
+
+\section{Batterie 6S2P pour la Jetson Orin Nano}
+
+La Jetson Orin Nano doit être alimentée préférentiellement en 19V par un connecteur DC 5,5 x 2,5 mm, mais des tensions plus basses sont également supportées.
+Une batterie 6S2P (24V) a été construite par le MontauLab.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.4\textwidth}
+  \centering
+  \includegraphics[width=6cm,height=\textheight,angle=270]{img/20260219_190843.jpg}
+\end{subfigure}
+\begin{subfigure}{0.4\textwidth}
+  \centering
+  \includegraphics[width=6cm,height=\textheight,angle=270]{img/20260219_151313.jpg}
+\end{subfigure}
+\caption{La batterie assemblée spécialement pour le projet contient une carte de protection pour éviter les surcharges locales}
+\end{figure}
+
+\section{Régulateur de tension XL4016E1}
+
+Le XL4016 est un convertisseur DC/DC abaisseur (buck) à modulation de largeur d’impulsion (PWM) à fréquence fixe de 180~kHz. 
+Il est capable de piloter une charge de 8~A avec un rendement élevé, une faible ondulation et une excellente régulation en ligne et en charge. 
+Ce module permet d’alimenter une charge de forte puissance avec une tension stable.
+Il a les caractéristiques suivantes :
+
+\begin{itemize}
+\tightlist
+  \item Tension d’entrée : DC 4~V \textasciitilde{} 38~V
+  \item Tension de sortie : DC 1.25~V \textasciitilde{} 36~V
+  \item Courant : 8~A (en continu : 5~A)
+  \item Fréquence de commutation : 180~kHz
+  \item Puissance maximale : 200~W
+  \item Rendement de conversion : 94~\%
+  \item Protection contre les courts-circuits
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=8cm,height=\textheight]{img/dc-dc_8a_buck_regulator_module_xl4016e1_1.jpg}
+\caption{Régulateur de tension 24V vers 19V}
+\end{figure}
+
+
+\section{Caméra CSI : IMX 219-D160}
+
+Il s’agit d’un module caméra (sans PCB de pilotage) compatible avec la carte officielle \textit{Raspberry Pi Camera Board V2}, 
+équipé d’un capteur IMX219 de 8 mégapixels et offrant un champ de vision de 160 degrés.
+Ces spécifications détaillées sont :
+
+\begin{itemize}
+\tightlist
+  \item Taille du capteur CMOS : 1/4 pouce
+  \item Ouverture (F) : 2.35
+  \item Distance focale : 3.15~mm
+  \item Angle de vue (diagonal) : 160 degrés
+  \item Distorsion : $< 14.3\%$
+  \item Plage de mise au point : 20~cm $\sim$ infini
+  \item Résolution photo : 3280 $\times$ 2464 pixels
+  \item Prise en charge de l’enregistrement vidéo : 1080p30, 720p60 et 640$\times$480p90
+\end{itemize}
+
+Dans le projet, la configuration vidéo utilisée est 1280$\times$720 avec 60 images par seconde.
+
+\section{Interrupteur deux circuits Heschen RT1221 DPST}
+
+Le règlement du TRR impose la présence d'un bouton  d'arrêt d'urgence.
+Pour couper en même temps les circuits haut et bas,
+le choix s'est porté sur un interrupteur à bascule en métal Heschen :
+RT1221 DPST - Type maintenu - Marche/arrêt - 2 positions - 15 A 250 VAC - Avec capuchon étanche
+
+DPST signifie Double Pole, Single Throw (en français : double pôle, simple position), soit :
+\begin{itemize}
+\tightlist
+	\item Double Pole (DP) = l’interrupteur commande deux circuits indépendants en même temps.
+	\item Single Throw (ST) = chaque circuit n’a qu’une seule position de commutation (ON/OFF).
+\end{itemize}
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=4cm,height=\textheight]{img/interrupteur_heschen.jpg}
+\caption{Photo de l'interupteur Heschen}
+\end{figure}
+
+\section{Jetson Orin Nano Developer Kit}
+
+Le kit de développement NVIDIA Jetson Orin Nano™ Super est un ordinateur compact, mais puissant qui redéfinit l'IA générative pour les appareils de petite taille. 
+Il offre jusqu'à 67 TOPS de performances d'IA, une amélioration de 1,7 fois par rapport à son prédécesseur, 
+pour exécuter de manière transparente les modèles d'IA générative les plus populaires, comme les transformateurs de vision, les grands modèles de langage, les modèles de langage de vision, et plus encore. 
+À seulement 249 \$, il fournit aux développeurs, aux étudiants et aux fabricants la plateforme la plus abordable et la plus accessible avec le support du logiciel d'IA NVIDIA 
+et un large écosystème de logiciels d'IA. 
+Les utilisateurs du kit de développement Jetson Orin Nano peuvent bénéficier de cette amélioration de performances avec une simple mise à niveau logicielle, 
+de sorte que tout le monde peut désormais libérer de nouvelles possibilités avec l'IA générative.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=4cm,height=\textheight]{img/jetson orin nano.jpg}
+\caption{Jetson Orin Nano Developer Kit}
+\end{figure}
+
+Un disque dur SSD de 500 Go a été ajouté sur la partie inférieure de la carte.
+
+\section{Carrosserie}
+
+La carrosserie a été conçue avec Onshape (https://onshape.com).
+Le design prend en compte le refroidissement nécessaire des éléments du robot.
+La carrosserie a été découpée sur une planche de peuplier d'épaisseur 5mm avec une machine laser à $CO_2$. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm,height=\textheight]{img/onshape.png}
+\caption{Vue de la carrosserie créée avec OnShape}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includesvg[width=10cm,height=\textheight]{img/carosserie.svg}
+\caption{Plan de découpe de la carosserie}
+\end{figure}
+
+%======================================================================
+\chapter{Configuration logicielle de la Jetson Orin Nano}
+
+%-------------------------------------------------------------------------
+\section{Configuration Linux Ubuntu 22 et SDK Nvidia}
+
+Les librairies Nvidia pour la Jetson Orin Nano sont configurées à partir du SDK Manager de Nvidia qui doit être installé sur une machine source configurée avec Ubuntu 22.
+Le SDK Manager peut être téléchargé depuis : \url{https://developer.nvidia.com/sdk-manager}.
+Les informations sur le Jetpack sont disponibles ici : \url{https://developer.nvidia.com/embedded/jetpack-archive}.
+
+Après avoir flasher la machine avec le Nvidia SDK Manager, il faut encore installer quelques autres composants :
+\begin{itemize}
+\tightlist
+\item firefox : sudo apt install firefox
+\item isaac ROS (release 3-2) - version humble
+\end{itemize}
+
+%-------------------------------------------------------------------------
+\section{Optimisation matérielle de la Jetson Orin Nano}
+
+La Jetson Orin Nano contient des dispositifs d'économie d'énergie qu'il faut désactiver pour avoir les meilleures performances:
+
+\begin{minted}{bash}
+sudo /usr/sbin/nvpmodel -m 2
+\end{minted}
+
+De même, la connexion wifi se coupe automatiquement pour économiser de l'énergie. Il est nécessaire de désactiver le sommeil du wifi pour ne pas subir de coupure intempestive de la communication. 
+\begin{minted}{bash}
+sudo iw dev wlP1p1s0 set power_save off
+\end{minted}
+
+Pour avoir ces paramètres au démarrage, il faut créer un service Linux décrit par le script
+/etc/systemd/system/robot\_config.service 
+
+\begin{minted}{bash}
+[Unit]
+Description=Config for Robot Jetson Orin Nano
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c '/usr/sbin/iw dev wlP1p1s0 set power_save off && /usr/sbin/nvpmodel -m 2'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+\end{minted}
+
+
+%-------------------------------------------------------------------------
+\section{Configuration de la caméra sur la Jetson Orin Nano}
+
+La caméra CSI n'est pas nativement reconnu par la Jetson. Ainsi, il faut appliquer la configuration suivante :
+
+\href{https://docs.nvidia.com/jetson/archives/l4t-archived/l4t-3275/index.html\#page/Tegra\%20Linux\%20Driver\%20Package\%20Development\%20Guide/hw_setup_jetson_io.html\#wwpID0E02D0HA}{link2}
+
+The configuration of all of the I/O pins on Jetson developer kits is statically defined, and is programmed into the device when it is flashed. 
+To change the pin configuration directly, you must update a pinmux spreadsheet for your platform, then flash the new configuration to the Jetson device.
+This is a suitable means of configuring production systems, but for development systems it is very inconvenient. 
+Therefore NVIDIA provides the Jetson Expansion Header Tool (also known as Jetson‑IO), a Python script that runs on a Jetson developer kit and lets you change pin configurations 
+through a graphic user interface. Jetson‑IO modifies the Device Tree Blob (DTB) firmware so that a new configuration for the expansion headers is applied when the developer kit is rebooted.
+
+\begin{minted}{bash}
+sudo /opt/nvidia/jetson-io/jetson-io.py
+\end{minted}
+
+Une fois la configuration réalisée, la commande suivante devrait trouver la caméra :
+
+\begin{minted}{bash}
+v4l2-ctl --list-devices
+\end{minted}
+
+%-------------------------------------------------------------------------
+\section{Calibration des images de la caméra}
+
+Ce paragraphe reprend certains éléments de la publication de Jean-Philippe Tarel :
+\url{http://perso.lcpc.fr/tarel.jean-philippe/publis/jpt-rr02.pdf}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm,height=\textheight]{img/schema_camera.png}
+\caption{Repère pour le modèle du trou d'aiguille}
+\end{figure}
+
+Soit $(x_v,y_v,z_v)$ un point au sol exprimé dans le repère du véhicule. Ses coordonnées $(x_c, y_c, z_c)$ dans le repère de la caméra, après rotation d’angle $\phi$ selon l’axe des $x_v$ et translation 
+de $-h / cos \phi$ le long de l’axe $z_c$, sont $(x_v, y_v cos \phi, - y_v sin \phi - h / cos \phi)$. 
+
+Pour calibrer la caméra, on utilise le modèle du trou d'aiguille qui modélise la
+projection de l'espace réel vers la caméra par une droite qui passe par le trou d'aiguille.  L'équation de cette droite est définie par :
+
+$$\left\{ \begin{array}{cl}
+x & = \ a \times t \\
+y & = \ b \times t \\
+z & = \ c \times t
+\end{array} \right.
+$$
+
+Le point de l'espace réel de coordonnées \((x_c,y_c,z_c)\) est associé, par convention, au paramètre \(t=1\). On a ainsi \((x_c=a,y_c=b,z_c=c)\). 
+Ce point est projeté sur le plan focal de la caméra, sur le point de coordonnées \((x_m,y_m,z_m)\) avec \(y_m=-f\) où $f$ est la distance focale de la caméra.
+On obtient ainsi un système d'équations qui permet d'éliminer le paramètre $t$ associé au point projeté sur la caméra :
+$$\left\{ \begin{array}{cl}
+x_m & = \ x_c \times t \\
+-f & = \ y_c \times t \\
+z_m & = \ z_c \times t
+\end{array} \right.
+$$
+Soit : 
+$$ (x_m,z_m) = f \times (x_v / (y_v cos \phi), tan \phi + h / ( y_v cos^2 \phi))$$
+
+Enfin, pour obtenir des coordonnées en pixel $(u,v)$ du point au sol, il faut introduire les
+paramètres intrinsèques de la caméra qui sont :
+\begin{itemize}
+\tightlist
+\item $(u_0,v_0)$ position, en pixels par rapport au coin supérieur gauche, du centre de l’image
+défini comme l’intersection de l’axe optique et avec la matrice CCD,
+\item $\alpha_u / f$ et $\alpha_v / f$ qui sont l’inverse de la taille horizontale et verticale, respectivement, d’un pixel.
+\end{itemize}
+
+Les coordonnées de l’image du point au sol sont donc $u= \alpha_u / f \times x_m + u_0$ et $v= \alpha_v / f \times z_m + v_0$.
+Soit :
+$$\left\{ \begin{array}{cl}
+u & = \alpha_u \times x_v / (y_v cos \phi) + u_0 \\
+v & = \alpha_v \times (tan \phi + h / (y_v cos^2 \phi)) + v_0 
+\end{array} \right.
+$$
+
+En posant $\beta_u = \alpha_u / cos \phi$, $\beta_v = h \alpha_v / cos^2 \phi$ et $v_h = \alpha_v tan \phi + v_0$, on obtient :
+
+$$\left\{ \begin{array}{cl}
+u & = \beta_u x_v / y_v + u_0 \\
+v & = \beta_v / y_v + v_h 
+\end{array} \right.
+$$
+
+Et en inversant le système, on peut retrouver la position du point dans le monde réel à partir de la position dans la caméra :
+$$\left\{ \begin{array}{cl}
+x_v & = \ \beta_u / \beta_v (u-u_O) / (v-v_h) \\
+y_v & = \ \ \beta_v  / (v-v_h)
+\end{array} \right.
+$$
+Le paramètre $v_h$ représente physiquement la hauteur de projection à l'infini.
+Le modèle peut être calibré par la connaissance des quatre paramètres $\beta_u$, $\beta_v$, $u_0$ et $v_h$.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm,height=\textheight,angle=270]{img/1000032674.jpg}
+\caption{La piste vue par la caméra}
+\end{figure}
+
+%-------------------------------------------------------------------------
+\section{Démarrage automatique du robot par un service Linux}
+
+Pour démarrer automatiquement le robot, on a créé un service Linux nommé "robot.service" qui se lancera au démarrage de la machine.
+Le script du service se situe dans /etc/systemd/system/robot.service :
+
+\begin{minted}{bash}
+[Unit]
+Description=Robot Jetson Orin Nano
+After=network.target
+
+[Service]
+WorkingDirectory=/home/montaulab
+Restart=on-failure
+User=montaulab
+ExecStart=/home/montaulab/robot_service_start.sh
+
+[Install]
+WantedBy=multi-user.target
+\end{minted}
+
+
+Le shell de démarrage est rédigé de la façon suivante :
+\begin{minted}{bash}
+#!/bin/bash
+source /home/montaulab/workspaces/isaac_ros-dev/install/setup.bash
+ros2 launch /home/montaulab/workspaces/isaac_ros-dev/launch/launch.py
+\end{minted}
+
+Pour rendre effectif le démarrage du service au prochain reboot, il faut lancer la commande :
+\begin{minted}{bash}
+sudo systemctl enable robot.service
+\end{minted}
+
+Les autres commandes utilent sont :
+\begin{minted}{bash}
+sudo systemctl start robot.service \\
+sudo systemctl stop robot.service \\
+journalctl -u robot.service -f
+\end{minted}
+
+%-------------------------------------------------------------------------
+\section{Arduino CLI pour ESP32}
+
+Il est possible de flasher l'ESP32 à partir de la Jetson. 
+Pour cela, il faut d'abord installer arduino-cli. La procédure est donnée par le lien suivant :
+\href{https://docs.arduino.cc/arduino-cli/installation/\#download}{https://docs.arduino.cc/arduino-cli/installation/\#download}
+
+
+Ensuite, il faut configurer précisément le système selon l'ESP32, soit pour nous: esp32:esp32:esp32doit-devkit-v1 . 
+Le lien suivant donne des informations intéressantes :
+\href{https://dev.to/stepanvrany/esp32-with-arduino-cli-36mh}{https://dev.to/stepanvrany/esp32-with-arduino-cli-36mh}
+
+\begin{minted}{bash}
+arduino-cli core update-index --config-file arduino-cli.yaml \\
+arduino-cli core install esp32:esp32:esp32doit-devkit-v1 
+\end{minted}
+
+Pour identifier la bonne configuration de l'ESP32 :
+\begin{minted}{bash}
+./arduino-cli board listall esp32
+./arduino-cli lib search adafruit sensor
+\end{minted}
+Pour en connaître les détails :
+\begin{minted}{bash}
+./arduino-cli board details --fqbn esp32:esp32:esp32
+\end{minted}
+
+Le code C++ pour l'ESP32 doit être localisé dans un répertoire qui porte le même nom que le script ino.
+Par exemple : test01/test01.ino. Ensuite, la compilation et le chargement du code dans l'ESP32 se fait par les commandes suivantes :
+
+\begin{minted}{bash}
+./arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 test01 
+./arduino-cli upload -p /dev/ttyUSB0 -b esp32:esp32:esp32doit-devkit-v1 test01 
+\end{minted}
+
+%-------------------------------------------------------------------------
+
+%========================================================================================
+\chapter{Codes logiciels sur l'ESP32}
+
+\section{Introduction}
+
+En raison de la vitesse de traitement importante de la Jetson, la communication via le port usb doit être optimisée.
+En effet, nous avons observé une importante pile de messages en attente de traitement par l'ESP32, ce qui a occasionné des problèmes de trajectoire de la voiure autonome.
+Pour corriger cela, la pile des messages doit être épurée à chaque fois, afin de ne retenir que le message le plus récent.
+
+Le protocole de communication sur le port série a été optimisée dans le sens ESP32 vers Jetson grâce à l'utilisation d'une structure d'échange binaire. 
+Faute de temps, la communication dans le sens inverse n'a pas pu être optimisée de la même façon.
+
+En raison d'un problème mécanique sur le train arrière jusqu'à deux jours avant la course (blocage d'une roue et lubrification insuffisante du différentiel arrière),
+le module de régulation de la vitesse n'a pu être optimisé. 
+
+\section{Code C++ sur l'ESP32}
+
+\begin{minted}{c++}
+// https://espressif-docs.readthedocs-hosted.com/
+//            projects/arduino-esp32/en/latest/api/ledc.html 
+#include <ESP32Servo.h>
+
+#define SERVO_PIN 32
+
+#define RPWM 25
+#define LPWM 26
+#define REN  27
+#define LEN  14
+
+// Encodeur
+#define ENCODER_A 18
+#define ENCODER_B 19
+
+Servo servo1;
+
+// ---------- PWM ----------
+#define PWM_CHANNEL_R 0
+#define PWM_CHANNEL_L 1
+#define PWM_FREQ      20000
+#define PWM_RESOLUTION 8
+
+// ---------- Encodeur ----------
+volatile long encoderCount = 0;
+
+const int COUNTS_PER_REV = 600;
+
+// ---------- Régulation ----------
+float targetRPM = 0.;
+float currentRPM = 0.;
+
+float Kp = 0.2;
+
+int pwmOutput = 0;
+float filteredRPM = 0;
+
+long lastCount = 0;
+uint32_t lastTime = 0;
+
+// ---------- Sens ----------
+bool forwardDirection = true;
+bool stop_mode = true;
+
+typedef struct __attribute__((packed)) {
+    uint32_t time;
+    uint32_t lastTime;
+    long count;
+    long lastCount;
+    float currentRPM;
+    float targetRPM;
+    int lastPwm;
+    int currentPwm;
+} imu_packet_t;
+
+imu_packet_t pkt;
+
+// ======================================================
+// INTERRUPTION ENCODEUR
+// ======================================================
+
+void IRAM_ATTR handleEncoder()
+{
+    bool a = digitalRead(ENCODER_A);
+    bool b = digitalRead(ENCODER_B);
+
+    if (a != b)
+        encoderCount++;
+    else
+        encoderCount--;
+}
+
+// ======================================================
+// SETUP
+// ======================================================
+
+void setup()
+{
+    Serial.begin(115200);
+
+    // Servo
+    servo1.attach(SERVO_PIN);
+
+    // Enable moteur
+    pinMode(RPWM, OUTPUT);
+    pinMode(LPWM, OUTPUT);
+    pinMode(REN, OUTPUT);
+    pinMode(LEN, OUTPUT);
+
+    digitalWrite(REN, HIGH);
+    digitalWrite(LEN, HIGH);
+
+    // PWM hardware ESP32
+    ledcAttach(RPWM, PWM_FREQ, PWM_RESOLUTION);
+    ledcAttach(LPWM, PWM_FREQ, PWM_RESOLUTION);
+
+    // Encodeur
+    pinMode(ENCODER_A, INPUT_PULLUP);
+    pinMode(ENCODER_B, INPUT_PULLUP);
+
+    attachInterrupt(digitalPinToInterrupt(ENCODER_A), handleEncoder, CHANGE);
+    lastTime = millis();
+}
+
+// ======================================================
+// DIRECTION
+// ======================================================
+
+void setAngle(int angle)
+{
+    int alpha = 90 + 10 + angle;
+    servo1.write(alpha);
+}
+
+// ======================================================
+// CONSIGNE VITESSE
+// ======================================================
+
+void setForwardRPM(float rpm)
+{
+    targetRPM = rpm;
+    forwardDirection = true;
+    stop_mode = false;
+}
+
+void setBackwardRPM(float rpm)
+{
+    targetRPM = rpm;
+    forwardDirection = false;
+    stop_mode = false;
+}
+
+void stopMotor()
+{
+    targetRPM = 0;
+
+    ledcWrite(RPWM, 0);
+    ledcWrite(LPWM, 0);
+    stop_mode = true;
+}
+
+// ======================================================
+// BOUCLE PID
+// ======================================================
+
+void updateMotorControl()
+{
+    uint32_t now = millis();
+
+    // toutes les 50 ms
+    if (now - lastTime >= 50 && !stop_mode)
+    {
+        noInterrupts();
+        long count = encoderCount;
+        long delta = count - lastCount;
+        currentRPM = delta;
+
+        pkt.time = now;
+        pkt.lastTime = lastTime;
+        pkt.count = count;
+        pkt.lastCount = lastCount;
+        pkt.currentRPM = currentRPM;
+        pkt.targetRPM = targetRPM;
+        pkt.lastPwm = pwmOutput;
+
+        if (!forwardDirection) currentRPM = -currentRPM;
+
+        //filteredRPM = 0.8 * filteredRPM + 0.2 * currentRPM;
+
+        if (currentRPM == 0) {
+            pwmOutput += 1;
+            pwmOutput = constrain(pwmOutput, 0, 100);
+        }
+        else {
+            //float correction = 0.5 * (targetRPM - filteredRPM);
+            float correction = (targetRPM - currentRPM);
+            correction = constrain(correction, -1, 1);
+            pwmOutput += correction;
+            pwmOutput = constrain(pwmOutput, 0, 100);
+        }
+        pkt.currentPwm = pwmOutput;
+
+        // appliquer PWM
+        if (forwardDirection)
+        {
+            ledcWrite(RPWM, pwmOutput);
+            ledcWrite(LPWM, 0);
+        }
+        else
+        {
+            ledcWrite(RPWM, 0);
+            ledcWrite(LPWM, pwmOutput);
+        }
+
+        interrupts();
+        Serial.write((uint8_t*)&pkt, sizeof(pkt));
+
+        lastCount = count;
+        lastTime = now;
+    }
+}
+
+// ======================================================
+// LOOP
+// ======================================================
+
+void loop()
+{
+    String cmd;
+    String lastMessage;
+    bool newMessage = false;
+    updateMotorControl();
+
+    while (Serial.available())
+    {
+        lastMessage = Serial.readStringUntil('\n');
+        newMessage = true;
+    }
+    if (newMessage) {
+        newMessage = false;
+        cmd = lastMessage;
+        int separatorIndex = cmd.indexOf(':');
+        if (separatorIndex != -1)
+        {
+            String commande = cmd.substring(0, separatorIndex);
+            String valeur = cmd.substring(separatorIndex + 1);
+
+            if (commande == "a") {
+                int angle = valeur.toInt();
+                setAngle(angle);
+            }
+
+            if (commande == "f") {
+                float rpm = valeur.toFloat();
+                stop_mode = false;
+                setForwardRPM(rpm);
+            }
+
+            if (commande == "b") {
+                float rpm = valeur.toFloat();
+                stop_mode = false;
+                setBackwardRPM(rpm);
+            }
+
+            if (commande == "s") {
+                stopMotor();
+            }
+        }
+    }
+}
+\end{minted}
+
+%========================================================================================
+\chapter{Codes logiciels sur la Jetson Orin Nano}
+
+%-------------------------------------------------------------------------
+\section{Architecture ROS2}
+
+Le logiciel sur la Jetson Orin Nano se compose de 
+trois processus ROS2 écrits en python. Ils communiquent entre eux selon l'architecture ci-dessous.
+
+\begin{figure}[h]
+\centering
+\includesvg[width=12cm,height=\textheight]{img/schema_ros2_new.svg}
+\caption{Architecture des programmes et des messages de ROS2}
+\end{figure}
+
+%-------------------------------------------------------------------------
+\section{Configuration ROS2, compilation et execution}
+
+Afin d'avoir toujours la configuration du projet dans le shell, la commande suivante a été ajoutée dans le fichier .bashrc:
+\begin{minted}{shell}
+source /home/montaulab/workspaces/isaac_ros-dev/install/setup.bash
+\end{minted}
+
+Notre projet ROS2 se nomme "course\_v1". La compilation des scripts se fait avec la commande suivante :
+\begin{minted}{shell}
+colcon build --packages-select course_v1 
+\end{minted}
+
+Pour lancer l'execution d'un processus (par exemple, le processus brain), on utilise la commande suivante :
+\begin{minted}{shell}
+ros2 run course_v1 brain 
+\end{minted}
+
+
+ROS2 a besoin du script "launch.py" localisé dans 
+/home/montaulab/workspaces/isaac\_ros-dev/launch/
+pour lancer tous les processus du robot. On y décrit les trois modules ROS utilisés ainsi qu'un processus bag qui va enregistrer les messages ROS échangés :
+\begin{minted}{python}
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.actions import ExecuteProcess
+
+def generate_launch_description():
+    bag_record = ExecuteProcess(
+        cmd=[
+            'ros2', 'bag', 'record',
+            '/course_v1/brain_status'
+        ],
+        output='screen'
+    )
+
+    robot_node = [
+        Node(
+            package='course_v1',
+            namespace='course_v1',
+            executable='camera',
+        ),
+        Node(
+            package='course_v1',
+            namespace='course_v1',
+            executable='web',
+        ),
+        Node(
+            package='course_v1',
+            namespace='course_v1',
+            executable='brain',
+        )
+    ]
+
+    return LaunchDescription(
+        robot_node + [bag_record]
+    )
+\end{minted}
+
+
+\section{Processus d'analyse de la caméra}
+
+Ce processus analyse les images de la caméra afin de trouver la ligne blanche.
+Pour cela, on réalise des coupes horizontales de l'image et on identifie les zones de rupture des couleurs dans une image convertie en noir et blanc.
+On utilise plusieurs sous-processus pour attendre que l'image soit rendu disponible par la caméra et pour réaliser les traitements d'image.
+L'architecture proposée fonctionne mais elle n'est peut-être pas optimale.
+\begin{minted}{python}
+import threading
+from queue import Queue
+import cv2 as cv
+import numpy as np
+from math import sqrt
+import time
+import os
+import vpi
+from PIL import Image
+import json
+
+import rclpy
+from rclpy.executors import ExternalShutdownException
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.node import Node
+from std_msgs.msg import String
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+
+# to define the camera parameters refer to : https://github.com/JetsonHacksNano/CSI-Camera
+class MinimalPublisher(Node):
+    def __init__(self):
+        # Configuration
+
+        self.WIDTH = 1280
+        self.HEIGHT = 720
+        # Calibration camera 1280 x 720
+        self.u0=640
+        self.beta_x = 0.13646387832699614
+        self.vh = 200
+        self.beta_y = 67.19999999999997
+
+        # Paramètres OpenCV
+        self.param_canny_min = 150
+        self.param_canny_max = 200
+        cv.setUseOptimized(True)
+        self.br = CvBridge()
+        self.tick_frequency = cv.getTickFrequency() / 1000.
+        self.font = cv.FONT_HERSHEY_PLAIN
+        self.font_scale = 1.0
+
+        # Initialisation matériel
+        self.camera = self._set_camera()
+
+        # État du système
+        self.report = {}
+        self.result = {"u1": -1, "v1": 0, "u2": -1, "v2": 0}
+        self.output = []
+        self.loop_counter = 0
+        self.img_cam = np.zeros((self.HEIGHT, self.WIDTH, 3), np.uint8)
+        self.img_canny = np.zeros((self.HEIGHT, self.WIDTH), np.uint8)
+
+        # Initialisation des temps
+        self.start = cv.getTickCount()
+        self.publish_start = cv.getTickCount()
+        self.red_line_time = cv.getTickCount()
+
+        #message ROS
+        super().__init__('minimal_publisher')
+        self.publisher_img_cam = self.create_publisher(Image, 'video_frames', 1)
+        self.publisher_report = self.create_publisher(String, 'camera_analysis', 10)
+        self.subscriptionWeb = self.create_subscription(String,'web_command',self.web_callback, 10)
+        self.subscriptionWeb
+
+        self.lock = threading.Lock()
+        self.queue = Queue(maxsize=1)   # IMPORTANT=1
+        threading.Thread(target=self.update, daemon=True).start()
+        threading.Thread(target=self.infinite_loop, daemon=True).start()
+
+        print("init ok")
+
+    def web_callback(self, msg):
+        """ cette fonction permet de sauver les images vues par la caméra à partir d'une commande envoyée par le web
+        """
+        if msg.data == "save_img":
+            filename = "/home/montaulab/Pictures/cam_" + str(cv.getTickCount()) + ".jpg"
+            cv.imwrite(filename, self.img_cam)
+
+    def update(self):
+        while True:
+            ret, frame = self.camera.read()
+            if ret:
+                with self.lock:
+                    self.img_cam = frame
+                    self.queue.put(frame)
+
+    @staticmethod
+    def chronometre(func):
+        """
+        cette fonction sert à mesurer le temps d'exécution des fonctions
+        """
+        def wrapper(self, *args, **kwargs):
+            start = cv.getTickCount()
+            result = func(self,*args, **kwargs)
+            end = cv.getTickCount()
+            if self.loop_counter >= 20:
+                t = (end - start) / self.tick_frequency
+                key = "F_" + func.__name__
+                self.report[key] = t
+                self.report[key + "_sum"] = self.report.get(key + "_sum", 0) + t
+                self.report[key + "_count"] = self.report.get(key + "_count", 0) + 1
+            return result
+        return wrapper
+
+    # --- Initialisation ---
+    def _set_camera(self):
+
+        gstreamer = (
+        "nvarguscamerasrc sensor-id=0 ! "
+        "video/x-raw(memory:NVMM), width=(int)1280, height=(int)720, framerate=(fraction)60/1 ! "
+        "nvvidconv flip-method=0 ! "
+        "video/x-raw, width=(int)1280, height=(int)720, format=(string)BGRx ! "
+        "videoconvert ! "
+        "video/x-raw, format=(string)BGR ! appsink"
+        )
+
+        cam = cv.VideoCapture(gstreamer, cv.CAP_GSTREAMER)
+        print(cam)
+        #time.sleep(10)
+
+        return cam
+
+    #@chronometre
+    def find_redline(self):
+        if (cv.getTickCount() - self.red_line_time) / self.tick_frequency) < 10000.:
+            return 0
+
+        img2=cv.resize(self.img_cam, (self.WIDTH//4, self.HEIGHT//4), interpolation=cv.INTER_AREA)
+        hsv = cv.cvtColor(img2, cv.COLOR_BGR2HSV)
+        mask = cv.inRange(hsv, (120, 123, 0), (240, 255, 255))
+        row_density = mask[::10].sum(axis=1)
+        col_density = mask[:,::10].sum(axis=0)
+        y = np.where(row_density>200)[0]
+        x = np.where(col_density>50)[0]
+        if len(x) and len(y):
+            x1, x2 = x[0]*40, x[-1]*40
+            y1, y2 = y[0]*40, y[-1]*40
+            v0 = (self.vh + self.HEIGHT) //2
+            if y1> v0 and y2 - y1 > 50 and x2 - x1 > 200:
+                cv.line(self.img_cam, (x1, y1), (x2, y2), (255,255,0), 3)
+                self.result["redline"]=1
+                print(">>>>redline found")
+                self.red_line_time = cv.getTickCount()
+                return 1
+        return 0
+
+    def analyse_line(self,gray, canny, v):
+    """
+    Cette fonction est le coeur algorithmique duu processus. Elle analyse une seule ligne horizontale d’une image pour détecter un motif précis : une zone claire entourée de deux zones sombres.  Elle commence par extraire la ligne horizontale d’indice v dans l’image des contours (Canny) et dans l’image en niveaux de gris. Elle repère ensuite les positions où des contours sont présents.
+
+    Si le nombre de contours est insuffisant, elle arrête immédiatement. Les contours trop proches sont éliminés afin de supprimer le bruit. 
+
+    Puis, elle calcule les distances entre contours successifs et mesure la luminosité moyenne des zones comprises entre chaque paire de contours.  Elle recherche alors un motif particulier : une région très claire encadrée par deux régions sombres, avec des largeurs comparables. Cela correspond typiquement à une bande claire isolée sur un fond sombre.  
+
+    Si un tel motif est trouvé, la fonction calcule le centre horizontal de la zone claire en pixels, puis transforme cette position en coordonnée réelle à l’aide d’une relation géométrique (correction de perspective basée sur des paramètres de calibration). Elle retourne alors la position en pixels et la position réelle correspondante.
+
+    Si aucun motif valide n’est détecté, elle renvoie une valeur indiquant l’échec.
+    """
+
+        edges = canny[v:v+1, :].ravel()
+        color = gray[v:v+1, :].ravel()
+        bord = np.where(edges == 255)[0]
+        if bord.shape[0]<3: return -1,0 # we want to have at least 4 edges.
+        bord = bord[np.ediff1d(bord,to_end=20) > 9] # keeps only the large difference
+        delta = np.ediff1d(bord)
+        mean_color=np.empty(len(bord)-1,dtype=int)
+        for idx,b in enumerate(bord[:-1]):
+            mean_color[idx]=int(np.mean(color[b:bord[idx+1]]))
+
+        for idx in range(1,len(mean_color)-1):
+            if mean_color[idx] > 200 and mean_color[idx-1]<80 and mean_color[idx+1]<80 and abs(delta[idx]-delta[idx-1])<delta[idx]/2 and abs(delta[idx]-delta[idx+1])<delta[idx]/2:
+                u=(bord[idx]+bord[idx+1]) // 2
+                x = self.beta_x * (u -self.u0) / (v - self.vh)
+                return (u,x)
+        return -1,0
+
+    #@chronometre
+    def find_band(self, gray, canny):
+        """
+        Cette fonction cherche une ligne horizontale dans une image qui comprend une coupe de la bande noire et blanche de la piste, en explorant différentes positions verticales v.
+        Elle :
+            - parcourt l’image vers le haut et vers le bas à partir d’un point central,
+            - analyse chaque ligne avec analyse_line,
+            - s’arrête dès qu’elle trouve une détection valide,
+            - calcule ensuite une coordonnée réelle y,
+            - retourne les informations trouvées.
+        """
+        k = 0
+        v0 = (self.vh + self.HEIGHT) //2
+        while True:
+            v = v0 + k * 10
+            if v >= self.HEIGHT:
+                return -1, 0, 0, 0
+            u, x = self.analyse_line(gray, canny, v)
+            if u != -1:
+                y = self.beta_y / (v - self.vh)
+                self.output.append({"u":u,"v":v,"x":x,"y":y})
+                return u, v, x, y
+            k += 1
+            v = v0 - k * 10
+            if v <= self.vh:
+                return -1, 0, 0, 0
+            u, x = self.analyse_line(gray, canny, v)
+            if u != -1:
+                y = self.beta_y / (v - self.vh)
+                self.output.append({"u":u,"v":v,"x":x,"y":y})
+                return u, v, x, y
+
+    #@chronometre
+    def _prepare_image_internal(self, img):
+        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        blur= cv.GaussianBlur(gray, (5, 5), 0)
+        eq = cv.equalizeHist(blur)
+        return eq
+
+    # --- Boucle Principale (Thread) ---
+    def infinite_loop(self):
+        while rclpy.ok():
+            self.loop_item()
+
+    #@chronometre
+    def loop_item(self):
+
+        self.loop_counter += 1
+        frame = self.queue.get()
+        self.result = {}
+
+        prepare_start = cv.getTickCount()
+        t1 = time.time()
+        gray = self._prepare_image_internal(frame)
+        self.img_canny = cv.Canny(gray, self.param_canny_min, self.param_canny_max)
+        prepare_end = cv.getTickCount()
+
+        self.output = []
+        self.result["u1"],self.result["v1"],self.result["x1"], self.result["y1"] = self.find_band(gray, self.img_canny)
+        if self.loop_counter % 10 ==0:
+            self.find_redline()
+        self.publish_text_report()
+        #if self.loop_counter % 100 ==0:
+        self.publish_img_cam(frame)
+        end = cv.getTickCount()
+        t2 = time.time()
+        t = (end - prepare_start) / self.tick_frequency
+        self.start = end
+        self.queue.task_done()
+
+    def publish_img_cam(self,frame):
+        for o in self.output:
+            if "u" in o and "v" in o:
+                cv.circle(frame, (o["u"], o["v"]), 5, (255, 0, 0), -1)
+        self.publisher_img_cam.publish(self.br.cv2_to_imgmsg(frame))
+
+    def publish_text_report(self):
+        msg = String()
+        x= {}
+        for k, v in self.result.items():
+            x[k]=str(v)
+        for k, v in self.report.items():
+            if k[-4:]=="_sum":
+                x[k[:-4]+"_mean"] =  str(v / self.report[k[:-4]+"_count"])
+            elif k[-6:]=="_count":
+                continue
+            else:
+                x[k]=str(v)
+        x["time"]=time.time()
+        end = cv.getTickCount()
+        x["delta_publish"]= (end - self.publish_start) / self.tick_frequency
+        #print("delta publish ",t)
+        msg.data=json.dumps(x)
+        self.publish_start = cv.getTickCount()
+        if x["u1"]=="-1":
+            print("no publication",msg.data)
+        else:
+            print("publish",msg.data)
+        self.publisher_report.publish(msg)
+
+    def run_ros(self):
+        node = self
+        try:
+            rclpy.spin(node)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            node.destroy_node()
+            rclpy.shutdown()
+
+def main():
+    rclpy.init()
+    node = MinimalPublisher()
+
+    executor = MultiThreadedExecutor(num_threads=5)
+    executor.add_node(node)
+    executor.spin()
+
+    node.destroy_node()
+    rclpy.shutdown()
+\end{minted}
+
+
+\section{Pilotage du robot}
+\begin{minted}{python}
+import threading
+import rclpy
+from rclpy.executors import ExternalShutdownException
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.node import Node
+
+from rclpy.qos import QoSProfile
+from rclpy.qos import QoSHistoryPolicy
+from rclpy.qos import ReliabilityPolicy
+
+from std_msgs.msg import String
+import serial
+import time
+import json
+import math
+import struct
+
+class CentralBrain(Node):
+
+    def __init__(self):
+        rclpy.init()
+        super().__init__('central_brain')
+
+        qos = QoSProfile(
+                history=QoSHistoryPolicy.KEEP_LAST,
+                depth=1,
+                reliability=ReliabilityPolicy.BEST_EFFORT
+            )
+
+        self.subscriptionWeb = self.create_subscription(String,'web_command',self.web_callback, 10)
+        self.subscriptionWeb
+        self.subscriptionTopic = self.create_subscription(String,'camera_analysis',self.camera_callback, qos)
+        self.subscriptionTopic
+        self.publisher_brain = self.create_publisher(String, 'brain_status', 10)
+
+        self.brain_status = {}
+        self.vmax_init = 15.
+        self.vmax = self.vmax_init 
+        self.vitesse = 0.
+        self.on_off = 0
+        self.angle = 0.
+        self.auto_manu = 1
+        self.speed_scale =1. 
+        self.redline_counter = 0 
+        self.redline_locker = 0. 
+
+        self.odometre = 0
+
+        self.last_tick = 0
+        self.tick = 0
+        self.delta_time = ""
+        self.buffer = 0
+        self.camera_msg = {} 
+        self.web_msg = ""
+
+        self.esp32_FMT = "<IIllffii"
+        self.esp32_msg_size = struct.calcsize(self.esp32_FMT)
+
+        self.data_esp32={}
+
+        self.to_esp32_FMT = "<Hh"
+        self.to_esp32_msg_size = struct.calcsize(self.to_esp32_FMT)
+        try:
+            self.ser = serial.Serial('/dev/ttyUSB0' , baudrate=115200, timeout=0, write_timeout=0) 
+        except:
+            self.ser = 0
+        threading.Thread(target=self.read_serial, daemon=True).start()
+
+    def read_serial(self):
+        while True:
+             if self.ser.in_waiting >= self.esp32_msg_size:
+                data = self.ser.read(self.esp32_msg_size)
+                if len(data) == self.esp32_msg_size:
+                    self.data_esp32={}
+                    (
+                        self.data_esp32["time_esp32"],
+                        self.data_esp32["last_time_esp32"],
+                        self.data_esp32["count"],
+                        self.data_esp32["last_count"],
+                        self.data_esp32["current_rpm"],
+                        self.data_esp32["target_rpm"],
+                        self.data_esp32["last_pwm"],
+                        self.data_esp32["current_pwm"]
+                    ) = struct.unpack(self.esp32_FMT,data)
+                    self.odometre = self.data_esp32["count"]
+                    self.data_esp32["delta_time_esp32"]=self.data_esp32["time_esp32"]-self.data_esp32["last_time_esp32"]
+                    self.data_esp32["delta_count"]=self.data_esp32["count"]-self.data_esp32["count"]
+                    if self.data_esp32["delta_time_esp32"] >0:
+                        self.data_esp32["speed_esp32"]=self.data_esp32["delta_count"]/self.data_esp32["delta_time_esp32"]
+                    else:
+                        self.data_esp32["speed_esp32"]=-1.
+
+    def publish_brain_status(self):
+        msg = String()
+        msg.data=json.dumps(self.brain_status)
+        self.publisher_brain.publish(msg)
+
+    def send_stop(self):
+        self.vmax = 0.
+        self.vitesse = 0.
+        self.on_off = 0
+        self.auto_manu = 0
+        print("stop")
+        cmd = f"s:\n"
+        self.ser.write(cmd.encode())
+        #data = struct.pack('<Hh', 0, 0)
+        #self.ser.write(data)
+        self.send_angle(0)
+
+    def send_forward(self,speed):
+        cmd = f"f:{int(speed*self.speed_scale)}\n"
+        self.ser.write(cmd.encode())
+        #data = struct.pack('<Hh', 1, int(speed))
+        #self.ser.write(data)
+
+    def send_backward(self,speed):
+        cmd = f"b:{int(speed*self.speed_scale)}\n"
+        self.ser.write(cmd.encode())
+        #data = struct.pack('<Hh', 2, int(speed))
+        #self.ser.write(data)
+
+    def send_angle(self,angle):
+        cmd = f"a:{angle}\n"
+        self.ser.write(cmd.encode())
+        #data = struct.pack('<Hh', 3, int(angle))
+        #self.ser.write(data)
+
+    def camera_callback(self, msg):
+        if self.on_off == 1:
+            self.camera_msg = json.loads(msg.data)
+            if self.camera_msg["u1"]!="-1":
+                x1=float(self.camera_msg["x1"])
+                y1=float(self.camera_msg["y1"])
+                self.angle = 90. - math.atan2(y1,x1) / math.pi * 180.
+                self.vitesse = self.vmax
+                print(msg.data)
+                print("angle",self.angle,"vitesse",self.vitesse)
+                if self.angle < -80. or self.angle > 80.:
+                    print(msg)
+                    return -1
+                self.send_angle(self.angle)
+                if self.odometre > 28000: 
+                    self.send_stop()
+                if self.odometre == 0: 
+                    self.send_forward(self.vitesse)
+                self.brain_status={}
+                self.brain_status = self.camera_msg.copy()
+                self.brain_status.update(self.data_esp32)
+                self.brain_status["camera_order_time"]=self.camera_msg["time"]
+                self.brain_status["brain_time"]=time.time()
+                self.brain_status["delta_cam_brain_time"]=time.time()-self.camera_msg["time"]
+                self.brain_status["angle"]=self.angle
+                self.brain_status["odometre"]=self.odometre
+                self.brain_status["vitesse"]=self.vitesse
+                self.publish_brain_status()
+            else:
+                print("no detection")
+            if "redline" in self.camera_msg:
+                print("redline")
+                self.redline_counter += 1 
+                if self.redline_counter == 6:
+                    self.send_stop()
+                #threading.Timer(10, self.free_redline_locker, ()).start()
+
+    def free_redline_locker(self):
+        print("free redline locker")
+        self.redline_locker = 0
+        if self.redline_counter == 5:
+            self.send_stop()
+            #pass
+
+    def web_callback(self, msg):
+        print(msg.data)
+        if msg.data == "mode_auto":
+            self.auto_manu = 1 
+            print("mode auto")
+        if msg.data == "mode_manu":
+            self.auto_manu = 0 
+            self.vmax = 0.
+            self.send_stop()
+            print("mode manu")
+        if msg.data in ["engine_on"]:
+            self.vmax = self.vmax_init 
+            self.on_off = 1
+        if msg.data in ["engine_off"]:
+            self.send_stop()
+            self.on_off = 0
+        if msg.data[:4] == "vmax":
+            self.vmax = int(msg.data.split(":")[1]) 
+        if "manu_angle" in msg.data:
+            self.angle = float(msg.data.split(":")[1]) 
+            self.send_angle(self.angle)
+        if "manu_speed_forward" in msg.data:
+            self.vitesse = float(msg.data.split(":")[1]) 
+            self.send_forward(self.vitesse)
+        if "manu_speed_backward" in msg.data:
+            self.vitesse = float(msg.data.split(":")[1]) 
+            self.send_backward(self.vitesse)
+        
+def main(args=None):
+    node = CentralBrain()
+    executor = MultiThreadedExecutor(num_threads=3)
+    executor.add_node(node)
+    executor.spin()
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+\end{minted}
+
+\section{Interface web}
+Ce module sert à envoyer les commandes de base du robot (démarrage / arrêt) et à recevoir le retour image de la caméra.
+
+\begin{minted}{python}
+import threading
+import rclpy
+from rclpy.executors import ExternalShutdownException
+from rclpy.node import Node
+
+from std_msgs.msg import String
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+import cv2 
+from flask import Flask, Response, request
+from flask import jsonify,render_template
+import time
+import os
+import numpy as np
+import math
+from ament_index_python.packages import get_package_share_directory
+
+class FlaskSubscriber(Node):
+
+    def __init__(self):
+        rclpy.init()
+        super().__init__('web_module')
+        self.subscriptionImage = self.create_subscription(Image, 'video_frames', self.img_callback, 1)
+        self.subscriptionImage
+        self.subscriptionTopic = self.create_subscription(String,'camera_analysis',self.topic_callback, 10)
+        self.subscriptionTopic
+        self.subscriptionBrain = self.create_subscription(String,'brain_status',self.brain_callback, 10)
+        self.subscriptionBrain
+        self.publisher_command = self.create_publisher(String, 'web_command', 10)
+
+        self.br = CvBridge()
+        self.tick_frequency = cv2.getTickFrequency() / 1000.
+        self.last_tick = 0
+        self.tick = 0
+        self.delta_time = ""
+        self.buffer = 0
+        self.msg = ""
+        self.brain_status = ""
+        self.current_frame = 0
+        self.package_path = get_package_share_directory('course_v1')
+
+        self.app = Flask(
+            __name__,
+            template_folder=os.path.join(self.package_path, 'templates'),
+            static_folder=os.path.join(self.package_path, 'static')
+        ) 
+        self._setup_routes()
+
+    def img_callback(self, data):
+        self.tick = cv2.getTickCount()
+        self.delta_time = f"{(self.tick - self.last_tick) / self.tick_frequency}"
+        self.last_tick = self.tick
+        
+        #self.get_logger().info('Receiving video frame:'+self.delta_time)
+        self.current_frame = self.br.imgmsg_to_cv2(data)
+        _, self.buffer = cv2.imencode('.jpg', self.current_frame)
+
+    def topic_callback(self, msg):
+        self.msg = msg.data
+        
+    def brain_callback(self, msg):
+        self.brain_status = msg.data
+        
+    def gen_video_camera(self):
+        return 0
+        while True:
+           if isinstance(self.buffer, np.ndarray):
+               yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + self.buffer.tobytes() + b'\r\n')
+           time.sleep(0.05)
+
+    def gen_video_calibration(self):
+
+        img_cumul =  np.zeros_like(self.current_frame)
+        img_cumul = img_cumul.astype(float)
+
+        k=0
+        while k<10:
+           cv2.accumulateWeighted(self.current_frame,img_cumul,0.1)
+           k+=1
+           time.sleep(.2)
+        img = np.round(img_cumul).astype(np.uint8)
+
+        height=img.shape[0]
+        width=img.shape[1]
+        cv2.line(img,(int(width/2),0),(int(width/2),height-1),(255,0,0),1)
+        _, buffer_calibration = cv2.imencode('.jpg', img)
+        return (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + buffer_calibration.tobytes() + b'\r\n')
+
+    def _setup_routes(self):
+
+        @self.app.route('/calibration')
+        def v_calibration(): 
+            return render_template('calibration.html')
+            #return Response(self.gen_video_calibration(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+        @self.app.route('/camera')
+        def v_cam(): 
+            return Response(self.gen_video_camera(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+        @self.app.route('/report')
+        def v_report(): 
+            return self.msg
+
+        @self.app.route('/brain')
+        def v_brain(): 
+            return self.brain_status
+
+        @self.app.route('/')
+        def v_main(): 
+            return render_template('command.html')
+
+        @self.app.route('/engine_on')
+        @self.app.route('/engine_off')
+        @self.app.route('/engine_vmax')
+        @self.app.route('/mode_auto')
+        @self.app.route('/mode_manu')
+        @self.app.route('/save_img')
+        @self.app.route('/manu_angle')
+        @self.app.route('/manu_speed_forward')
+        @self.app.route('/manu_speed_backward')
+        def web_command(): 
+            msg = String()
+            if request.path == "/engine_vmax": 
+                vmax = request.args.get("vmax")
+                msg.data="vmax:"+vmax
+            elif request.path == "/manu_speed_forward": 
+                speed = request.args.get("speed")
+                msg.data="manu_speed_forward:"+speed
+            elif request.path == "/manu_speed_backward": 
+                speed = request.args.get("speed")
+                msg.data="manu_speed_backward:"+speed
+            elif request.path == "/manu_angle": 
+                angle = request.args.get("angle")
+                msg.data="manu_angle:"+angle
+            else:
+                msg.data=request.path[1:]
+            self.publisher_command.publish(msg)
+            return jsonify({"status":msg.data})
+
+    def run_ros(self):
+        node = self	
+        try:
+            rclpy.spin(node)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            node.destroy_node()
+            rclpy.shutdown()
+
+    def run(self):
+        threading.Thread(target=self.run_ros,daemon=True).start()
+        self.app.run(host='0.0.0.0', port=5001, threaded=True)
+
+def main(args=None):
+    system = FlaskSubscriber()
+    system.run()
+\end{minted}
+
+\section{Page html de commande}
+
+\begin{minted}{html}
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+<style>
+#on_off_button {
+	width: 45%;
+	height:100px;
+}
+#auto_manu_button {
+	width: 45%;
+	height:100px;
+}
+
+datalist {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  writing-mode: vertical-lr;
+  width: 100%;
+}
+
+option {
+  padding: 0;
+}
+
+input[type="range"] {
+  width: 100%;
+  height:50px;
+  margin: 0;
+}
+</style>
+<script>
+var engine;
+
+function init() {
+	vmax=0;
+	engine=0;
+	document.getElementById("on_off_button").innerHTML="Engine Off";
+	document.getElementById("on_off_button").style.backgroundColor="red";
+
+    document.getElementById("on_off_button").addEventListener("click",async function() {
+        let response;
+        if(this.innerHTML == "Engine Off") {
+            response = await fetch('/engine_on');
+            this.innerHTML = "Engine On";
+            this.style.backgroundColor="green";
+            engine=1;
+        }	
+        else {
+            response = await fetch('/engine_off');
+            this.innerHTML = "Engine Off";
+            this.style.backgroundColor="red";
+            engine=0;
+        }	
+    });
+}
+
+function updateData() {
+    fetch('/brain')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('angle').textContent = data.angle;
+            document.getElementById('odometre').textContent = data.odometre;
+            document.getElementById('rpm').textContent = data.current_rpm;
+            document.getElementById('pwm').textContent = data.current_pwm;
+        });
+}
+
+setInterval(updateData, 500);
+
+</script>
+<body onload="init()">
+    <img style="-webkit-user-select: none;" src="/camera" width="100%">
+    <BR>
+    <button id="on_off_button"></button>
+    <div>
+        angle : <span id="angle">--</span><br>
+        odometre : <span id="odometre">--</span><br>
+        rpm : <span id="rpm">--</span><br>
+        pwm : <span id="pwm">--</span><br>
+    </div>
+</body>		 
+</html>
+\end{minted}
+
+\section{Page html de calibration de la caméra}
+
+\begin{minted}{html}
+<!DOCTYPE html>
+<html>
+<style>
+
+input {
+width : 50px;
+}
+
+#radio-two {
+	position: absolute;
+	top: 80px;
+	left: 0px;
+}
+#x-two {
+	position: absolute;
+	top: 80px;
+	left: 50px;
+	background-color: white;
+}
+#y-two {
+	position: absolute;
+	top: 80px;
+	left: 120px;
+	background-color: white;
+}
+#u-two {
+	position: absolute;
+	top: 100px;
+	left: 50px;
+	background-color: white;
+}
+#v-two {
+	position: absolute;
+	top: 100px;
+	left: 120px;
+	background-color: white;
+}
+
+#radio-three {
+	position: absolute;
+	top: 130px;
+	left: 200px;
+}
+#x-three {
+	position: absolute;
+	top: 130px;
+	left: 250px;
+	background-color: white;
+}
+#y-three {
+	position: absolute;
+	top: 130px;
+	left: 320px;
+	background-color: white;
+}
+#u-three {
+	position: absolute;
+	top: 150px;
+	left: 250px;
+	background-color: white;
+}
+#v-three {
+	position: absolute;
+	top: 150px;
+	left: 320px;
+	background-color: white;
+}
+
+#radio-one {
+	position: absolute;
+	top: 130px;
+	left: 0px;
+}
+#x-one {
+	position: absolute;
+	top: 130px;
+	left: 50px;
+	background-color: white;
+}
+#y-one {
+	position: absolute;
+	top: 130px;
+	left: 120px;
+	background-color: white;
+}
+#u-one {
+	position: absolute;
+	top: 150px;
+	left: 50px;
+	background-color: white;
+}
+#v-one {
+	position: absolute;
+	top: 150px;
+	left: 120px;
+	background-color: white;
+}
+#button {
+	position: absolute;
+	top: 80px;
+	left: 220px;
+	background-color: white;
+}
+#report {
+	position: absolute;
+	top: 200px;
+	left: 20px;
+	background-color: white;
+}
+#result {
+	position: absolute;
+	top: 250px;
+	left: 20px;
+	background-color: white;
+}
+
+</style>
+<body>
+
+<input type="radio" name="radio" id="radio-one" value="one" />
+<input id="x-one" type="number"/><input id="y-one" type="number"/>
+<input id="u-one" type="number" disabled/><input id="v-one" type="number" disabled/>
+<input type="radio" name="radio" id="radio-two" value="two" />
+<input id="x-two" type="number"/><input id="y-two" type="number"/>
+<input id="u-two" type="number" disabled/><input id="v-two" type="number" disabled/>
+<input type="radio" name="radio" id="radio-three" value="three" />
+<input id="x-three" type="number"/><input id="y-three" type="number"/>
+<input id="u-three" type="number" disabled/><input id="v-three" type="number"disabled/>
+<button id="button">calculate</button>
+<div id="report"></div>
+<div id="result"></div>
+<img id="img" style="-webkit-user-select: none;" src="/camera" width="100%">
+
+
+</body>
+<script>
+	img = document.getElementById("img");
+	rect = img.getBoundingClientRect();
+	img.addEventListener("mousemove", function (event) {
+		let u= event.offsetX - rect.left;	
+		let v= event.offsetY - rect.top;
+		document.getElementById("report").innerHTML = "u:"+u+" v:"+v;
+	});
+	img.addEventListener("contextmenu", function (event) {
+		let u= event.offsetX - rect.left;	
+		let v= event.offsetY - rect.top;	
+		let select = document.querySelector('input[name="radio"]:checked').value;
+		document.getElementById("u-"+select).value = u;
+		document.getElementById("v-"+select).value = v;
+	});
+	document.getElementById("button").addEventListener("click", function (event) {
+		let x_one = document.getElementById("x-one").value;
+		let y_one = document.getElementById("y-one").value;
+		let x_two = document.getElementById("x-two").value;
+		let y_two = document.getElementById("y-two").value;
+		let x_three = document.getElementById("x-three").value;
+		let y_three = document.getElementById("y-three").value;
+
+		let u_one = document.getElementById("u-one").value;
+		let v_one = document.getElementById("v-one").value;
+		let u_two = document.getElementById("u-two").value;
+		let v_two = document.getElementById("v-two").value;
+		let u_three = document.getElementById("u-three").value;
+		let v_three = document.getElementById("v-three").value;
+
+		let v_h = (y_two * v_two - y_one * v_one) / (y_two - y_one); 
+		let beta_v = y_one * (v_one - v_h);
+		let u_0 = u_one;
+		let beta_u = x_three * (v_three - v_h) / ( u_three - u_0);
+		let text = "beta_u = " + beta_u;
+		text += "<BR>u_0 = " + u_0;
+		text += "<BR>vh = " + v_h;
+		text += "<BR>beta_v = " + beta_v;
+		document.getElementById("result").innerHTML = text;
+	});
+</script>
+</html>
+\end{minted}
+
+\chapter{Performance et résultats}
+
+\section{Temps de traitement}
+
+Le temps de traitement algorithmique est d'abord déterminé par le temps de réponse de la caméra. Avec 60 images par seconde, on a ainsi une latence intrinsèque de 16 ms.
+
+Avec les optimisations réalisées, le temps de traitement des images est réduit à quelques millisecondes. Au total, la piste est analysée et la commande de direction est envoyée en moins de 20 ms.
+
+Les communications de message ROS sont très efficaces (0,2 ms).
+
+L'autre limitation à la vitesse de la voiture est le temps de réponse du servo moteur qui peut tourner de 60° en 110 ms.
+
+\section{Résultats}
+
+D'après la presse, la voiture est arrivée en troisième position de la course.
+
+Les trajectoires en courbe sont bien respectées, même à vitesse élevée.
+Paradoxalement, la vitesse maximale de la voiture a dû être limitée à cause du comportement en ligne droite en sortie de virage.
+
+On analyse ce comportement comme un mauvais positionnement du point d'analyse de la caméra, trop proche de la voiture.
+La correction de cela devrait être facile.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=18cm,height=\textheight]{img/IMG-20260606-WA0001.jpg}
+\end{figure}
+
+\end{document}

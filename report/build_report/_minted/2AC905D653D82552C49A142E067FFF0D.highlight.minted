@@ -1,0 +1,4 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+./arduino\PYGZhy{}cli\PYG{+w}{ }board\PYG{+w}{ }listall\PYG{+w}{ }esp32
+./arduino\PYGZhy{}cli\PYG{+w}{ }lib\PYG{+w}{ }search\PYG{+w}{ }adafruit\PYG{+w}{ }sensor
+\end{MintedVerbatim}

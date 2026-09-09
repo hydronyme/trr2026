@@ -1,0 +1,298 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{threading}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{queue}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{Queue}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{cv2}\PYG{+w}{ }\PYG{k}{as}\PYG{+w}{ }\PYG{n+nn}{cv}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{numpy}\PYG{+w}{ }\PYG{k}{as}\PYG{+w}{ }\PYG{n+nn}{np}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{math}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{sqrt}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{time}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{os}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{vpi}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{PIL}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{Image}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{json}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{rclpy}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{rclpy.executors}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{ExternalShutdownException}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{rclpy.executors}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{MultiThreadedExecutor}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{rclpy.node}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{Node}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{std\PYGZus{}msgs.msg}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{String}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{sensor\PYGZus{}msgs.msg}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{Image}
+\PYG{k+kn}{from}\PYG{+w}{ }\PYG{n+nn}{cv\PYGZus{}bridge}\PYG{+w}{ }\PYG{k+kn}{import} \PYG{n}{CvBridge}
+
+\PYG{c+c1}{\PYGZsh{} to define the camera parameters refer to : https://github.com/JetsonHacksNano/CSI\PYGZhy{}Camera}
+\PYG{k}{class}\PYG{+w}{ }\PYG{n+nc}{MinimalPublisher}\PYG{p}{(}\PYG{n}{Node}\PYG{p}{):}
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{c+c1}{\PYGZsh{} Configuration}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{WIDTH} \PYG{o}{=} \PYG{l+m+mi}{1280}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{HEIGHT} \PYG{o}{=} \PYG{l+m+mi}{720}
+        \PYG{c+c1}{\PYGZsh{} Calibration camera 1280 x 720}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{u0}\PYG{o}{=}\PYG{l+m+mi}{640}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{beta\PYGZus{}x} \PYG{o}{=} \PYG{l+m+mf}{0.13646387832699614}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vh} \PYG{o}{=} \PYG{l+m+mi}{200}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{beta\PYGZus{}y} \PYG{o}{=} \PYG{l+m+mf}{67.19999999999997}
+
+        \PYG{c+c1}{\PYGZsh{} Paramètres OpenCV}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{param\PYGZus{}canny\PYGZus{}min} \PYG{o}{=} \PYG{l+m+mi}{150}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{param\PYGZus{}canny\PYGZus{}max} \PYG{o}{=} \PYG{l+m+mi}{200}
+        \PYG{n}{cv}\PYG{o}{.}\PYG{n}{setUseOptimized}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{br} \PYG{o}{=} \PYG{n}{CvBridge}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tick\PYGZus{}frequency} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickFrequency}\PYG{p}{()} \PYG{o}{/} \PYG{l+m+mf}{1000.}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{font} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{FONT\PYGZus{}HERSHEY\PYGZus{}PLAIN}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{font\PYGZus{}scale} \PYG{o}{=} \PYG{l+m+mf}{1.0}
+
+        \PYG{c+c1}{\PYGZsh{} Initialisation matériel}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}set\PYGZus{}camera}\PYG{p}{()}
+
+        \PYG{c+c1}{\PYGZsh{} État du système}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{report} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{result} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}u1\PYGZdq{}}\PYG{p}{:} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}v1\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}u2\PYGZdq{}}\PYG{p}{:} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}v2\PYGZdq{}}\PYG{p}{:} \PYG{l+m+mi}{0}\PYG{p}{\PYGZcb{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{output} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{loop\PYGZus{}counter} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{img\PYGZus{}cam} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{HEIGHT}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{WIDTH}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{),} \PYG{n}{np}\PYG{o}{.}\PYG{n}{uint8}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{img\PYGZus{}canny} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{HEIGHT}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{WIDTH}\PYG{p}{),} \PYG{n}{np}\PYG{o}{.}\PYG{n}{uint8}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Initialisation des temps}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{start} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publish\PYGZus{}start} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{red\PYGZus{}line\PYGZus{}time} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+
+        \PYG{c+c1}{\PYGZsh{}message ROS}
+        \PYG{n+nb}{super}\PYG{p}{()}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}minimal\PYGZus{}publisher\PYGZsq{}}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publisher\PYGZus{}img\PYGZus{}cam} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}publisher}\PYG{p}{(}\PYG{n}{Image}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}video\PYGZus{}frames\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publisher\PYGZus{}report} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}publisher}\PYG{p}{(}\PYG{n}{String}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}camera\PYGZus{}analysis\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{subscriptionWeb} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}subscription}\PYG{p}{(}\PYG{n}{String}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}web\PYGZus{}command\PYGZsq{}}\PYG{p}{,}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{web\PYGZus{}callback}\PYG{p}{,} \PYG{l+m+mi}{10}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{subscriptionWeb}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{lock} \PYG{o}{=} \PYG{n}{threading}\PYG{o}{.}\PYG{n}{Lock}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{queue} \PYG{o}{=} \PYG{n}{Queue}\PYG{p}{(}\PYG{n}{maxsize}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}   \PYG{c+c1}{\PYGZsh{} IMPORTANT=1}
+        \PYG{n}{threading}\PYG{o}{.}\PYG{n}{Thread}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{update}\PYG{p}{,} \PYG{n}{daemon}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+        \PYG{n}{threading}\PYG{o}{.}\PYG{n}{Thread}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{infinite\PYGZus{}loop}\PYG{p}{,} \PYG{n}{daemon}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}init ok\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{web\PYGZus{}callback}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{msg}\PYG{p}{):}
+\PYG{+w}{        }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{} cette fonction permet de sauver les images vues par la caméra à partir d\PYGZsq{}une commande envoyée par le web}
+\PYG{l+s+sd}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{if} \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}save\PYGZus{}img\PYGZdq{}}\PYG{p}{:}
+            \PYG{n}{filename} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}/home/montaulab/Pictures/cam\PYGZus{}\PYGZdq{}} \PYG{o}{+} \PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{())} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}.jpg\PYGZdq{}}
+            \PYG{n}{cv}\PYG{o}{.}\PYG{n}{imwrite}\PYG{p}{(}\PYG{n}{filename}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{img\PYGZus{}cam}\PYG{p}{)}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{update}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{k}{while} \PYG{k+kc}{True}\PYG{p}{:}
+            \PYG{n}{ret}\PYG{p}{,} \PYG{n}{frame} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{camera}\PYG{o}{.}\PYG{n}{read}\PYG{p}{()}
+            \PYG{k}{if} \PYG{n}{ret}\PYG{p}{:}
+                \PYG{k}{with} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{lock}\PYG{p}{:}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{img\PYGZus{}cam} \PYG{o}{=} \PYG{n}{frame}
+                    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{queue}\PYG{o}{.}\PYG{n}{put}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{)}
+
+    \PYG{n+nd}{@staticmethod}
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{chronometre}\PYG{p}{(}\PYG{n}{func}\PYG{p}{):}
+\PYG{+w}{        }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{        cette fonction sert à mesurer le temps d\PYGZsq{}exécution des fonctions}
+\PYG{l+s+sd}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{wrapper}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{o}{*}\PYG{n}{args}\PYG{p}{,} \PYG{o}{**}\PYG{n}{kwargs}\PYG{p}{):}
+            \PYG{n}{start} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+            \PYG{n}{result} \PYG{o}{=} \PYG{n}{func}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,}\PYG{o}{*}\PYG{n}{args}\PYG{p}{,} \PYG{o}{**}\PYG{n}{kwargs}\PYG{p}{)}
+            \PYG{n}{end} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+            \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{loop\PYGZus{}counter} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{20}\PYG{p}{:}
+                \PYG{n}{t} \PYG{o}{=} \PYG{p}{(}\PYG{n}{end} \PYG{o}{\PYGZhy{}} \PYG{n}{start}\PYG{p}{)} \PYG{o}{/} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tick\PYGZus{}frequency}
+                \PYG{n}{key} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}F\PYGZus{}\PYGZdq{}} \PYG{o}{+} \PYG{n}{func}\PYG{o}{.}\PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{report}\PYG{p}{[}\PYG{n}{key}\PYG{p}{]} \PYG{o}{=} \PYG{n}{t}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{report}\PYG{p}{[}\PYG{n}{key} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}sum\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{report}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{n}{key} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}sum\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{)} \PYG{o}{+} \PYG{n}{t}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{report}\PYG{p}{[}\PYG{n}{key} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}count\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{report}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{n}{key} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}\PYGZus{}count\PYGZdq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}
+            \PYG{k}{return} \PYG{n}{result}
+        \PYG{k}{return} \PYG{n}{wrapper}
+
+    \PYG{c+c1}{\PYGZsh{} \PYGZhy{}\PYGZhy{}\PYGZhy{} Initialisation \PYGZhy{}\PYGZhy{}\PYGZhy{}}
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{\PYGZus{}set\PYGZus{}camera}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+
+        \PYG{n}{gstreamer} \PYG{o}{=} \PYG{p}{(}
+        \PYG{l+s+s2}{\PYGZdq{}nvarguscamerasrc sensor\PYGZhy{}id=0 ! \PYGZdq{}}
+        \PYG{l+s+s2}{\PYGZdq{}video/x\PYGZhy{}raw(memory:NVMM), width=(int)1280, height=(int)720, framerate=(fraction)60/1 ! \PYGZdq{}}
+        \PYG{l+s+s2}{\PYGZdq{}nvvidconv flip\PYGZhy{}method=0 ! \PYGZdq{}}
+        \PYG{l+s+s2}{\PYGZdq{}video/x\PYGZhy{}raw, width=(int)1280, height=(int)720, format=(string)BGRx ! \PYGZdq{}}
+        \PYG{l+s+s2}{\PYGZdq{}videoconvert ! \PYGZdq{}}
+        \PYG{l+s+s2}{\PYGZdq{}video/x\PYGZhy{}raw, format=(string)BGR ! appsink\PYGZdq{}}
+        \PYG{p}{)}
+
+        \PYG{n}{cam} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{VideoCapture}\PYG{p}{(}\PYG{n}{gstreamer}\PYG{p}{,} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{CAP\PYGZus{}GSTREAMER}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{cam}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{}time.sleep(10)}
+
+        \PYG{k}{return} \PYG{n}{cam}
+
+    \PYG{c+c1}{\PYGZsh{}@chronometre}
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{find\PYGZus{}redline}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{k}{if} \PYG{p}{(}\PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()} \PYG{o}{\PYGZhy{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{red\PYGZus{}line\PYGZus{}time}\PYG{p}{)} \PYG{o}{/} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tick\PYGZus{}frequency}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{l+m+mf}{10000.}\PYG{p}{:}
+            \PYG{k}{return} \PYG{l+m+mi}{0}
+
+        \PYG{n}{img2}\PYG{o}{=}\PYG{n}{cv}\PYG{o}{.}\PYG{n}{resize}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{img\PYGZus{}cam}\PYG{p}{,} \PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{WIDTH}\PYG{o}{//}\PYG{l+m+mi}{4}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{HEIGHT}\PYG{o}{//}\PYG{l+m+mi}{4}\PYG{p}{),} \PYG{n}{interpolation}\PYG{o}{=}\PYG{n}{cv}\PYG{o}{.}\PYG{n}{INTER\PYGZus{}AREA}\PYG{p}{)}
+        \PYG{n}{hsv} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{cvtColor}\PYG{p}{(}\PYG{n}{img2}\PYG{p}{,} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{COLOR\PYGZus{}BGR2HSV}\PYG{p}{)}
+        \PYG{n}{mask} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{inRange}\PYG{p}{(}\PYG{n}{hsv}\PYG{p}{,} \PYG{p}{(}\PYG{l+m+mi}{120}\PYG{p}{,} \PYG{l+m+mi}{123}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{),} \PYG{p}{(}\PYG{l+m+mi}{240}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{))}
+        \PYG{n}{row\PYGZus{}density} \PYG{o}{=} \PYG{n}{mask}\PYG{p}{[::}\PYG{l+m+mi}{10}\PYG{p}{]}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+        \PYG{n}{col\PYGZus{}density} \PYG{o}{=} \PYG{n}{mask}\PYG{p}{[:,::}\PYG{l+m+mi}{10}\PYG{p}{]}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{)}
+        \PYG{n}{y} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{where}\PYG{p}{(}\PYG{n}{row\PYGZus{}density}\PYG{o}{\PYGZgt{}}\PYG{l+m+mi}{200}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{n}{x} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{where}\PYG{p}{(}\PYG{n}{col\PYGZus{}density}\PYG{o}{\PYGZgt{}}\PYG{l+m+mi}{50}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)} \PYG{o+ow}{and} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{y}\PYG{p}{):}
+            \PYG{n}{x1}\PYG{p}{,} \PYG{n}{x2} \PYG{o}{=} \PYG{n}{x}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{*}\PYG{l+m+mi}{40}\PYG{p}{,} \PYG{n}{x}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{*}\PYG{l+m+mi}{40}
+            \PYG{n}{y1}\PYG{p}{,} \PYG{n}{y2} \PYG{o}{=} \PYG{n}{y}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{*}\PYG{l+m+mi}{40}\PYG{p}{,} \PYG{n}{y}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{*}\PYG{l+m+mi}{40}
+            \PYG{n}{v0} \PYG{o}{=} \PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vh} \PYG{o}{+} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{HEIGHT}\PYG{p}{)} \PYG{o}{//}\PYG{l+m+mi}{2}
+            \PYG{k}{if} \PYG{n}{y1}\PYG{o}{\PYGZgt{}} \PYG{n}{v0} \PYG{o+ow}{and} \PYG{n}{y2} \PYG{o}{\PYGZhy{}} \PYG{n}{y1} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{50} \PYG{o+ow}{and} \PYG{n}{x2} \PYG{o}{\PYGZhy{}} \PYG{n}{x1} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{200}\PYG{p}{:}
+                \PYG{n}{cv}\PYG{o}{.}\PYG{n}{line}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{img\PYGZus{}cam}\PYG{p}{,} \PYG{p}{(}\PYG{n}{x1}\PYG{p}{,} \PYG{n}{y1}\PYG{p}{),} \PYG{p}{(}\PYG{n}{x2}\PYG{p}{,} \PYG{n}{y2}\PYG{p}{),} \PYG{p}{(}\PYG{l+m+mi}{255}\PYG{p}{,}\PYG{l+m+mi}{255}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{),} \PYG{l+m+mi}{3}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{result}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}redline\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{l+m+mi}{1}
+                \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZgt{}\PYGZgt{}\PYGZgt{}\PYGZgt{}redline found\PYGZdq{}}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{red\PYGZus{}line\PYGZus{}time} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+                \PYG{k}{return} \PYG{l+m+mi}{1}
+        \PYG{k}{return} \PYG{l+m+mi}{0}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{analyse\PYGZus{}line}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,}\PYG{n}{gray}\PYG{p}{,} \PYG{n}{canny}\PYG{p}{,} \PYG{n}{v}\PYG{p}{):}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{    Cette fonction est le coeur algorithmique duu processus. Elle analyse une seule ligne horizontale d’une image pour détecter un motif précis : une zone claire entourée de deux zones sombres.  Elle commence par extraire la ligne horizontale d’indice v dans l’image des contours (Canny) et dans l’image en niveaux de gris. Elle repère ensuite les positions où des contours sont présents.}
+
+\PYG{l+s+sd}{    Si le nombre de contours est insuffisant, elle arrête immédiatement. Les contours trop proches sont éliminés afin de supprimer le bruit.}
+
+\PYG{l+s+sd}{    Puis, elle calcule les distances entre contours successifs et mesure la luminosité moyenne des zones comprises entre chaque paire de contours.  Elle recherche alors un motif particulier : une région très claire encadrée par deux régions sombres, avec des largeurs comparables. Cela correspond typiquement à une bande claire isolée sur un fond sombre.}
+
+\PYG{l+s+sd}{    Si un tel motif est trouvé, la fonction calcule le centre horizontal de la zone claire en pixels, puis transforme cette position en coordonnée réelle à l’aide d’une relation géométrique (correction de perspective basée sur des paramètres de calibration). Elle retourne alors la position en pixels et la position réelle correspondante.}
+
+\PYG{l+s+sd}{    Si aucun motif valide n’est détecté, elle renvoie une valeur indiquant l’échec.}
+\PYG{l+s+sd}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+
+        \PYG{n}{edges} \PYG{o}{=} \PYG{n}{canny}\PYG{p}{[}\PYG{n}{v}\PYG{p}{:}\PYG{n}{v}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{p}{:]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{()}
+        \PYG{n}{color} \PYG{o}{=} \PYG{n}{gray}\PYG{p}{[}\PYG{n}{v}\PYG{p}{:}\PYG{n}{v}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{p}{:]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{()}
+        \PYG{n}{bord} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{where}\PYG{p}{(}\PYG{n}{edges} \PYG{o}{==} \PYG{l+m+mi}{255}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{k}{if} \PYG{n}{bord}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{\PYGZlt{}}\PYG{l+m+mi}{3}\PYG{p}{:} \PYG{k}{return} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{0} \PYG{c+c1}{\PYGZsh{} we want to have at least 4 edges.}
+        \PYG{n}{bord} \PYG{o}{=} \PYG{n}{bord}\PYG{p}{[}\PYG{n}{np}\PYG{o}{.}\PYG{n}{ediff1d}\PYG{p}{(}\PYG{n}{bord}\PYG{p}{,}\PYG{n}{to\PYGZus{}end}\PYG{o}{=}\PYG{l+m+mi}{20}\PYG{p}{)} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{9}\PYG{p}{]} \PYG{c+c1}{\PYGZsh{} keeps only the large difference}
+        \PYG{n}{delta} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ediff1d}\PYG{p}{(}\PYG{n}{bord}\PYG{p}{)}
+        \PYG{n}{mean\PYGZus{}color}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{bord}\PYG{p}{)}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{n}{dtype}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{idx}\PYG{p}{,}\PYG{n}{b} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{bord}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]):}
+            \PYG{n}{mean\PYGZus{}color}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{mean}\PYG{p}{(}\PYG{n}{color}\PYG{p}{[}\PYG{n}{b}\PYG{p}{:}\PYG{n}{bord}\PYG{p}{[}\PYG{n}{idx}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{]]))}
+
+        \PYG{k}{for} \PYG{n}{idx} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{mean\PYGZus{}color}\PYG{p}{)}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{):}
+            \PYG{k}{if} \PYG{n}{mean\PYGZus{}color}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{200} \PYG{o+ow}{and} \PYG{n}{mean\PYGZus{}color}\PYG{p}{[}\PYG{n}{idx}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{\PYGZlt{}}\PYG{l+m+mi}{80} \PYG{o+ow}{and} \PYG{n}{mean\PYGZus{}color}\PYG{p}{[}\PYG{n}{idx}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{\PYGZlt{}}\PYG{l+m+mi}{80} \PYG{o+ow}{and} \PYG{n+nb}{abs}\PYG{p}{(}\PYG{n}{delta}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]}\PYG{o}{\PYGZhy{}}\PYG{n}{delta}\PYG{p}{[}\PYG{n}{idx}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{])}\PYG{o}{\PYGZlt{}}\PYG{n}{delta}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]}\PYG{o}{/}\PYG{l+m+mi}{2} \PYG{o+ow}{and} \PYG{n+nb}{abs}\PYG{p}{(}\PYG{n}{delta}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]}\PYG{o}{\PYGZhy{}}\PYG{n}{delta}\PYG{p}{[}\PYG{n}{idx}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{])}\PYG{o}{\PYGZlt{}}\PYG{n}{delta}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]}\PYG{o}{/}\PYG{l+m+mi}{2}\PYG{p}{:}
+                \PYG{n}{u}\PYG{o}{=}\PYG{p}{(}\PYG{n}{bord}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]}\PYG{o}{+}\PYG{n}{bord}\PYG{p}{[}\PYG{n}{idx}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{])} \PYG{o}{//} \PYG{l+m+mi}{2}
+                \PYG{n}{x} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{beta\PYGZus{}x} \PYG{o}{*} \PYG{p}{(}\PYG{n}{u} \PYG{o}{\PYGZhy{}}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{u0}\PYG{p}{)} \PYG{o}{/} \PYG{p}{(}\PYG{n}{v} \PYG{o}{\PYGZhy{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vh}\PYG{p}{)}
+                \PYG{k}{return} \PYG{p}{(}\PYG{n}{u}\PYG{p}{,}\PYG{n}{x}\PYG{p}{)}
+        \PYG{k}{return} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{0}
+
+    \PYG{c+c1}{\PYGZsh{}@chronometre}
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{find\PYGZus{}band}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{gray}\PYG{p}{,} \PYG{n}{canny}\PYG{p}{):}
+\PYG{+w}{        }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+sd}{        Cette fonction cherche une ligne horizontale dans une image qui comprend une coupe de la bande noire et blanche de la piste, en explorant différentes positions verticales v.}
+\PYG{l+s+sd}{        Elle :}
+\PYG{l+s+sd}{            \PYGZhy{} parcourt l’image vers le haut et vers le bas à partir d’un point central,}
+\PYG{l+s+sd}{            \PYGZhy{} analyse chaque ligne avec analyse\PYGZus{}line,}
+\PYG{l+s+sd}{            \PYGZhy{} s’arrête dès qu’elle trouve une détection valide,}
+\PYG{l+s+sd}{            \PYGZhy{} calcule ensuite une coordonnée réelle y,}
+\PYG{l+s+sd}{            \PYGZhy{} retourne les informations trouvées.}
+\PYG{l+s+sd}{        \PYGZdq{}\PYGZdq{}\PYGZdq{}}
+        \PYG{n}{k} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n}{v0} \PYG{o}{=} \PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vh} \PYG{o}{+} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{HEIGHT}\PYG{p}{)} \PYG{o}{//}\PYG{l+m+mi}{2}
+        \PYG{k}{while} \PYG{k+kc}{True}\PYG{p}{:}
+            \PYG{n}{v} \PYG{o}{=} \PYG{n}{v0} \PYG{o}{+} \PYG{n}{k} \PYG{o}{*} \PYG{l+m+mi}{10}
+            \PYG{k}{if} \PYG{n}{v} \PYG{o}{\PYGZgt{}=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{HEIGHT}\PYG{p}{:}
+                \PYG{k}{return} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}
+            \PYG{n}{u}\PYG{p}{,} \PYG{n}{x} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{analyse\PYGZus{}line}\PYG{p}{(}\PYG{n}{gray}\PYG{p}{,} \PYG{n}{canny}\PYG{p}{,} \PYG{n}{v}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{u} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{n}{y} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{beta\PYGZus{}y} \PYG{o}{/} \PYG{p}{(}\PYG{n}{v} \PYG{o}{\PYGZhy{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vh}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{output}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}u\PYGZdq{}}\PYG{p}{:}\PYG{n}{u}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}v\PYGZdq{}}\PYG{p}{:}\PYG{n}{v}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}x\PYGZdq{}}\PYG{p}{:}\PYG{n}{x}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}y\PYGZdq{}}\PYG{p}{:}\PYG{n}{y}\PYG{p}{\PYGZcb{})}
+                \PYG{k}{return} \PYG{n}{u}\PYG{p}{,} \PYG{n}{v}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{y}
+            \PYG{n}{k} \PYG{o}{+=} \PYG{l+m+mi}{1}
+            \PYG{n}{v} \PYG{o}{=} \PYG{n}{v0} \PYG{o}{\PYGZhy{}} \PYG{n}{k} \PYG{o}{*} \PYG{l+m+mi}{10}
+            \PYG{k}{if} \PYG{n}{v} \PYG{o}{\PYGZlt{}=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vh}\PYG{p}{:}
+                \PYG{k}{return} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}
+            \PYG{n}{u}\PYG{p}{,} \PYG{n}{x} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{analyse\PYGZus{}line}\PYG{p}{(}\PYG{n}{gray}\PYG{p}{,} \PYG{n}{canny}\PYG{p}{,} \PYG{n}{v}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{u} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+                \PYG{n}{y} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{beta\PYGZus{}y} \PYG{o}{/} \PYG{p}{(}\PYG{n}{v} \PYG{o}{\PYGZhy{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{vh}\PYG{p}{)}
+                \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{output}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(\PYGZob{}}\PYG{l+s+s2}{\PYGZdq{}u\PYGZdq{}}\PYG{p}{:}\PYG{n}{u}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}v\PYGZdq{}}\PYG{p}{:}\PYG{n}{v}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}x\PYGZdq{}}\PYG{p}{:}\PYG{n}{x}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}y\PYGZdq{}}\PYG{p}{:}\PYG{n}{y}\PYG{p}{\PYGZcb{})}
+                \PYG{k}{return} \PYG{n}{u}\PYG{p}{,} \PYG{n}{v}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{y}
+
+    \PYG{c+c1}{\PYGZsh{}@chronometre}
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{\PYGZus{}prepare\PYGZus{}image\PYGZus{}internal}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{img}\PYG{p}{):}
+        \PYG{n}{gray} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{cvtColor}\PYG{p}{(}\PYG{n}{img}\PYG{p}{,} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{COLOR\PYGZus{}BGR2GRAY}\PYG{p}{)}
+        \PYG{n}{blur}\PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{GaussianBlur}\PYG{p}{(}\PYG{n}{gray}\PYG{p}{,} \PYG{p}{(}\PYG{l+m+mi}{5}\PYG{p}{,} \PYG{l+m+mi}{5}\PYG{p}{),} \PYG{l+m+mi}{0}\PYG{p}{)}
+        \PYG{n}{eq} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{equalizeHist}\PYG{p}{(}\PYG{n}{blur}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{eq}
+
+    \PYG{c+c1}{\PYGZsh{} \PYGZhy{}\PYGZhy{}\PYGZhy{} Boucle Principale (Thread) \PYGZhy{}\PYGZhy{}\PYGZhy{}}
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{infinite\PYGZus{}loop}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{k}{while} \PYG{n}{rclpy}\PYG{o}{.}\PYG{n}{ok}\PYG{p}{():}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{loop\PYGZus{}item}\PYG{p}{()}
+
+    \PYG{c+c1}{\PYGZsh{}@chronometre}
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{loop\PYGZus{}item}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{loop\PYGZus{}counter} \PYG{o}{+=} \PYG{l+m+mi}{1}
+        \PYG{n}{frame} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{queue}\PYG{o}{.}\PYG{n}{get}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{result} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+
+        \PYG{n}{prepare\PYGZus{}start} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+        \PYG{n}{t1} \PYG{o}{=} \PYG{n}{time}\PYG{o}{.}\PYG{n}{time}\PYG{p}{()}
+        \PYG{n}{gray} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{\PYGZus{}prepare\PYGZus{}image\PYGZus{}internal}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{img\PYGZus{}canny} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{Canny}\PYG{p}{(}\PYG{n}{gray}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{param\PYGZus{}canny\PYGZus{}min}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{param\PYGZus{}canny\PYGZus{}max}\PYG{p}{)}
+        \PYG{n}{prepare\PYGZus{}end} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{output} \PYG{o}{=} \PYG{p}{[]}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{result}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}u1\PYGZdq{}}\PYG{p}{],}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{result}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}v1\PYGZdq{}}\PYG{p}{],}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{result}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}x1\PYGZdq{}}\PYG{p}{],} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{result}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}y1\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}band}\PYG{p}{(}\PYG{n}{gray}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{img\PYGZus{}canny}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{loop\PYGZus{}counter} \PYG{o}{\PYGZpc{}} \PYG{l+m+mi}{10} \PYG{o}{==}\PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{find\PYGZus{}redline}\PYG{p}{()}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publish\PYGZus{}text\PYGZus{}report}\PYG{p}{()}
+        \PYG{c+c1}{\PYGZsh{}if self.loop\PYGZus{}counter \PYGZpc{} 100 ==0:}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publish\PYGZus{}img\PYGZus{}cam}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{)}
+        \PYG{n}{end} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+        \PYG{n}{t2} \PYG{o}{=} \PYG{n}{time}\PYG{o}{.}\PYG{n}{time}\PYG{p}{()}
+        \PYG{n}{t} \PYG{o}{=} \PYG{p}{(}\PYG{n}{end} \PYG{o}{\PYGZhy{}} \PYG{n}{prepare\PYGZus{}start}\PYG{p}{)} \PYG{o}{/} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tick\PYGZus{}frequency}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{start} \PYG{o}{=} \PYG{n}{end}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{queue}\PYG{o}{.}\PYG{n}{task\PYGZus{}done}\PYG{p}{()}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{publish\PYGZus{}img\PYGZus{}cam}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,}\PYG{n}{frame}\PYG{p}{):}
+        \PYG{k}{for} \PYG{n}{o} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{output}\PYG{p}{:}
+            \PYG{k}{if} \PYG{l+s+s2}{\PYGZdq{}u\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{o} \PYG{o+ow}{and} \PYG{l+s+s2}{\PYGZdq{}v\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{o}\PYG{p}{:}
+                \PYG{n}{cv}\PYG{o}{.}\PYG{n}{circle}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{,} \PYG{p}{(}\PYG{n}{o}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}u\PYGZdq{}}\PYG{p}{],} \PYG{n}{o}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}v\PYGZdq{}}\PYG{p}{]),} \PYG{l+m+mi}{5}\PYG{p}{,} \PYG{p}{(}\PYG{l+m+mi}{255}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{),} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publisher\PYGZus{}img\PYGZus{}cam}\PYG{o}{.}\PYG{n}{publish}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{br}\PYG{o}{.}\PYG{n}{cv2\PYGZus{}to\PYGZus{}imgmsg}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{))}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{publish\PYGZus{}text\PYGZus{}report}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n}{msg} \PYG{o}{=} \PYG{n}{String}\PYG{p}{()}
+        \PYG{n}{x}\PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+        \PYG{k}{for} \PYG{n}{k}\PYG{p}{,} \PYG{n}{v} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{result}\PYG{o}{.}\PYG{n}{items}\PYG{p}{():}
+            \PYG{n}{x}\PYG{p}{[}\PYG{n}{k}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{k}\PYG{p}{,} \PYG{n}{v} \PYG{o+ow}{in} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{report}\PYG{o}{.}\PYG{n}{items}\PYG{p}{():}
+            \PYG{k}{if} \PYG{n}{k}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{4}\PYG{p}{:]}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}\PYGZus{}sum\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{x}\PYG{p}{[}\PYG{n}{k}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{4}\PYG{p}{]}\PYG{o}{+}\PYG{l+s+s2}{\PYGZdq{}\PYGZus{}mean\PYGZdq{}}\PYG{p}{]} \PYG{o}{=}  \PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{v} \PYG{o}{/} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{report}\PYG{p}{[}\PYG{n}{k}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{4}\PYG{p}{]}\PYG{o}{+}\PYG{l+s+s2}{\PYGZdq{}\PYGZus{}count\PYGZdq{}}\PYG{p}{])}
+            \PYG{k}{elif} \PYG{n}{k}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{6}\PYG{p}{:]}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}\PYGZus{}count\PYGZdq{}}\PYG{p}{:}
+                \PYG{k}{continue}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{n}{x}\PYG{p}{[}\PYG{n}{k}\PYG{p}{]}\PYG{o}{=}\PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}
+        \PYG{n}{x}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}time\PYGZdq{}}\PYG{p}{]}\PYG{o}{=}\PYG{n}{time}\PYG{o}{.}\PYG{n}{time}\PYG{p}{()}
+        \PYG{n}{end} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+        \PYG{n}{x}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}delta\PYGZus{}publish\PYGZdq{}}\PYG{p}{]}\PYG{o}{=} \PYG{p}{(}\PYG{n}{end} \PYG{o}{\PYGZhy{}} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publish\PYGZus{}start}\PYG{p}{)} \PYG{o}{/} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tick\PYGZus{}frequency}
+        \PYG{c+c1}{\PYGZsh{}print(\PYGZdq{}delta publish \PYGZdq{},t)}
+        \PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{o}{=}\PYG{n}{json}\PYG{o}{.}\PYG{n}{dumps}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publish\PYGZus{}start} \PYG{o}{=} \PYG{n}{cv}\PYG{o}{.}\PYG{n}{getTickCount}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n}{x}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}u1\PYGZdq{}}\PYG{p}{]}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}1\PYGZdq{}}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}no publication\PYGZdq{}}\PYG{p}{,}\PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{p}{)}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}publish\PYGZdq{}}\PYG{p}{,}\PYG{n}{msg}\PYG{o}{.}\PYG{n}{data}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{publisher\PYGZus{}report}\PYG{o}{.}\PYG{n}{publish}\PYG{p}{(}\PYG{n}{msg}\PYG{p}{)}
+
+    \PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{run\PYGZus{}ros}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{):}
+        \PYG{n}{node} \PYG{o}{=} \PYG{n+nb+bp}{self}
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{n}{rclpy}\PYG{o}{.}\PYG{n}{spin}\PYG{p}{(}\PYG{n}{node}\PYG{p}{)}
+        \PYG{k}{except} \PYG{n+ne}{KeyboardInterrupt}\PYG{p}{:}
+            \PYG{k}{pass}
+        \PYG{k}{finally}\PYG{p}{:}
+            \PYG{n}{node}\PYG{o}{.}\PYG{n}{destroy\PYGZus{}node}\PYG{p}{()}
+            \PYG{n}{rclpy}\PYG{o}{.}\PYG{n}{shutdown}\PYG{p}{()}
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{main}\PYG{p}{():}
+    \PYG{n}{rclpy}\PYG{o}{.}\PYG{n}{init}\PYG{p}{()}
+    \PYG{n}{node} \PYG{o}{=} \PYG{n}{MinimalPublisher}\PYG{p}{()}
+
+    \PYG{n}{executor} \PYG{o}{=} \PYG{n}{MultiThreadedExecutor}\PYG{p}{(}\PYG{n}{num\PYGZus{}threads}\PYG{o}{=}\PYG{l+m+mi}{5}\PYG{p}{)}
+    \PYG{n}{executor}\PYG{o}{.}\PYG{n}{add\PYGZus{}node}\PYG{p}{(}\PYG{n}{node}\PYG{p}{)}
+    \PYG{n}{executor}\PYG{o}{.}\PYG{n}{spin}\PYG{p}{()}
+
+    \PYG{n}{node}\PYG{o}{.}\PYG{n}{destroy\PYGZus{}node}\PYG{p}{()}
+    \PYG{n}{rclpy}\PYG{o}{.}\PYG{n}{shutdown}\PYG{p}{()}
+\end{MintedVerbatim}

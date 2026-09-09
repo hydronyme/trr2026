@@ -1,0 +1,5 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+ch}{\PYGZsh{}!/bin/bash}
+\PYG{n+nb}{source}\PYG{+w}{ }/home/montaulab/workspaces/isaac\PYGZus{}ros\PYGZhy{}dev/install/setup.bash
+ros2\PYG{+w}{ }launch\PYG{+w}{ }/home/montaulab/workspaces/isaac\PYGZus{}ros\PYGZhy{}dev/launch/launch.py
+\end{MintedVerbatim}

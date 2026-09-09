@@ -1,0 +1,4 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+arduino\PYGZhy{}cli\PYG{+w}{ }core\PYG{+w}{ }update\PYGZhy{}index\PYG{+w}{ }\PYGZhy{}\PYGZhy{}config\PYGZhy{}file\PYG{+w}{ }arduino\PYGZhy{}cli.yaml\PYG{+w}{ }\PYG{l+s+se}{\PYGZbs{}\PYGZbs{}}
+arduino\PYGZhy{}cli\PYG{+w}{ }core\PYG{+w}{ }install\PYG{+w}{ }esp32:esp32:esp32doit\PYGZhy{}devkit\PYGZhy{}v1
+\end{MintedVerbatim}

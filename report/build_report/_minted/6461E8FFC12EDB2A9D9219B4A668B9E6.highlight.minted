@@ -1,0 +1,3 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+ros2\PYG{+w}{ }run\PYG{+w}{ }course\PYGZus{}v1\PYG{+w}{ }brain
+\end{MintedVerbatim}

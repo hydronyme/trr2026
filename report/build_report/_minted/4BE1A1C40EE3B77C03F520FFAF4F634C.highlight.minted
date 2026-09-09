@@ -1,0 +1,14 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{o}{[}Unit\PYG{o}{]}
+\PYG{n+nv}{Description}\PYG{o}{=}Robot\PYG{+w}{ }Jetson\PYG{+w}{ }Orin\PYG{+w}{ }Nano
+\PYG{n+nv}{After}\PYG{o}{=}network.target
+
+\PYG{o}{[}Service\PYG{o}{]}
+\PYG{n+nv}{WorkingDirectory}\PYG{o}{=}/home/montaulab
+\PYG{n+nv}{Restart}\PYG{o}{=}on\PYGZhy{}failure
+\PYG{n+nv}{User}\PYG{o}{=}montaulab
+\PYG{n+nv}{ExecStart}\PYG{o}{=}/home/montaulab/robot\PYGZus{}service\PYGZus{}start.sh
+
+\PYG{o}{[}Install\PYG{o}{]}
+\PYG{n+nv}{WantedBy}\PYG{o}{=}multi\PYGZhy{}user.target
+\end{MintedVerbatim}

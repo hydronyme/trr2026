@@ -1,0 +1,5 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+sudo\PYG{+w}{ }systemctl\PYG{+w}{ }start\PYG{+w}{ }robot.service\PYG{+w}{ }\PYG{l+s+se}{\PYGZbs{}\PYGZbs{}}
+sudo\PYG{+w}{ }systemctl\PYG{+w}{ }stop\PYG{+w}{ }robot.service\PYG{+w}{ }\PYG{l+s+se}{\PYGZbs{}\PYGZbs{}}
+journalctl\PYG{+w}{ }\PYGZhy{}u\PYG{+w}{ }robot.service\PYG{+w}{ }\PYGZhy{}f
+\end{MintedVerbatim}

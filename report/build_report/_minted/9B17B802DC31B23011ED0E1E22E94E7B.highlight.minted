@@ -1,0 +1,13 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{o}{[}Unit\PYG{o}{]}
+\PYG{n+nv}{Description}\PYG{o}{=}Config\PYG{+w}{ }\PYG{k}{for}\PYG{+w}{ }Robot\PYG{+w}{ }Jetson\PYG{+w}{ }Orin\PYG{+w}{ }Nano
+\PYG{n+nv}{After}\PYG{o}{=}network.target
+
+\PYG{o}{[}Service\PYG{o}{]}
+\PYG{n+nv}{Type}\PYG{o}{=}oneshot
+\PYG{n+nv}{ExecStart}\PYG{o}{=}/bin/bash\PYG{+w}{ }\PYGZhy{}c\PYG{+w}{ }\PYG{l+s+s1}{\PYGZsq{}/usr/sbin/iw dev wlP1p1s0 set power\PYGZus{}save off \PYGZam{}\PYGZam{} /usr/sbin/nvpmodel \PYGZhy{}m 2\PYGZsq{}}
+\PYG{n+nv}{RemainAfterExit}\PYG{o}{=}yes
+
+\PYG{o}{[}Install\PYG{o}{]}
+\PYG{n+nv}{WantedBy}\PYG{o}{=}multi\PYGZhy{}user.target
+\end{MintedVerbatim}

@@ -1,0 +1,3 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+v4l2\PYGZhy{}ctl\PYG{+w}{ }\PYGZhy{}\PYGZhy{}list\PYGZhy{}devices
+\end{MintedVerbatim}
