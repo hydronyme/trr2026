@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<style>
+
+input {
+width : 50px;
+}
+
+#radio-two {
+	position: absolute;
+	top: 80px;
+	left: 0px;
+}
+#x-two {
+	position: absolute;
+	top: 80px;
+	left: 50px;
+	background-color: white;
+}
+#y-two {
+	position: absolute;
+	top: 80px;
+	left: 120px;
+	background-color: white;
+}
+#u-two {
+	position: absolute;
+	top: 100px;
+	left: 50px;
+	background-color: white;
+}
+#v-two {
+	position: absolute;
+	top: 100px;
+	left: 120px;
+	background-color: white;
+}
+
+#radio-three {
+	position: absolute;
+	top: 130px;
+	left: 200px;
+}
+#x-three {
+	position: absolute;
+	top: 130px;
+	left: 250px;
+	background-color: white;
+}
+#y-three {
+	position: absolute;
+	top: 130px;
+	left: 320px;
+	background-color: white;
+}
+#u-three {
+	position: absolute;
+	top: 150px;
+	left: 250px;
+	background-color: white;
+}
+#v-three {
+	position: absolute;
+	top: 150px;
+	left: 320px;
+	background-color: white;
+}
+
+#radio-one {
+	position: absolute;
+	top: 130px;
+	left: 0px;
+}
+#x-one {
+	position: absolute;
+	top: 130px;
+	left: 50px;
+	background-color: white;
+}
+#y-one {
+	position: absolute;
+	top: 130px;
+	left: 120px;
+	background-color: white;
+}
+#u-one {
+	position: absolute;
+	top: 150px;
+	left: 50px;
+	background-color: white;
+}
+#v-one {
+	position: absolute;
+	top: 150px;
+	left: 120px;
+	background-color: white;
+}
+#button {
+	position: absolute;
+	top: 80px;
+	left: 220px;
+	background-color: white;
+}
+#report {
+	position: absolute;
+	top: 200px;
+	left: 20px;
+	background-color: white;
+}
+#result {
+	position: absolute;
+	top: 250px;
+	left: 20px;
+	background-color: white;
+}
+
+</style>
+<body>
+
+<input type="radio" name="radio" id="radio-one" value="one" />
+<input id="x-one" type="number"/><input id="y-one" type="number"/>
+<input id="u-one" type="number" disabled/><input id="v-one" type="number" disabled/>
+<input type="radio" name="radio" id="radio-two" value="two" />
+<input id="x-two" type="number"/><input id="y-two" type="number"/>
+<input id="u-two" type="number" disabled/><input id="v-two" type="number" disabled/>
+<input type="radio" name="radio" id="radio-three" value="three" />
+<input id="x-three" type="number"/><input id="y-three" type="number"/>
+<input id="u-three" type="number" disabled/><input id="v-three" type="number"disabled/>
+<button id="button">calculate</button>
+<div id="report"></div>
+<div id="result"></div>
+<img id="img" style="-webkit-user-select: none;" src="/camera" width="100%">
+
+
+</body>
+<script>
+	img = document.getElementById("img");
+	rect = img.getBoundingClientRect();
+	img.addEventListener("mousemove", function (event) {
+		let u= event.offsetX - rect.left;	
+		let v= event.offsetY - rect.top;
+		document.getElementById("report").innerHTML = "u:"+u+" v:"+v;
+	});
+	img.addEventListener("contextmenu", function (event) {
+		let u= event.offsetX - rect.left;	
+		let v= event.offsetY - rect.top;	
+		let select = document.querySelector('input[name="radio"]:checked').value;
+		document.getElementById("u-"+select).value = u;
+		document.getElementById("v-"+select).value = v;
+	});
+	document.getElementById("button").addEventListener("click", function (event) {
+		let x_one = document.getElementById("x-one").value;
+		let y_one = document.getElementById("y-one").value;
+		let x_two = document.getElementById("x-two").value;
+		let y_two = document.getElementById("y-two").value;
+		let x_three = document.getElementById("x-three").value;
+		let y_three = document.getElementById("y-three").value;
+
+		let u_one = document.getElementById("u-one").value;
+		let v_one = document.getElementById("v-one").value;
+		let u_two = document.getElementById("u-two").value;
+		let v_two = document.getElementById("v-two").value;
+		let u_three = document.getElementById("u-three").value;
+		let v_three = document.getElementById("v-three").value;
+
+		let v_h = (y_two * v_two - y_one * v_one) / (y_two - y_one); 
+		let beta_v = y_one * (v_one - v_h);
+		let u_0 = u_one;
+		let beta_u = x_three * (v_three - v_h) / ( u_three - u_0);
+		let text = "beta_u = " + beta_u;
+		text += "<BR>u_0 = " + u_0;
+		text += "<BR>vh = " + v_h;
+		text += "<BR>beta_v = " + beta_v;
+		document.getElementById("result").innerHTML = text;
+	});
+</script>
+</html>

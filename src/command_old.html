@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+<style>
+#on_off_button {
+	width: 45%;
+	height:100px;
+}
+#auto_manu_button {
+	width: 45%;
+	height:100px;
+}
+
+datalist {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  writing-mode: vertical-lr;
+  width: 100%;
+}
+
+option {
+  padding: 0;
+}
+
+input[type="range"] {
+  width: 100%;
+  height:50px;
+  margin: 0;
+}
+</style>
+<script>
+var vmax;
+var engine;
+var auto_manu=0;
+var angle=0;
+
+function init() {
+	vmax=0;
+	engine=0;
+	document.getElementById("speed").value = vmax;
+	document.getElementById("speed").disabled = true;
+	document.getElementById("angle").disabled = true;
+	document.getElementById("on_off_button").innerHTML="Engine Off";
+	document.getElementById("on_off_button").style.backgroundColor="red";
+	document.getElementById("auto_manu_button").innerHTML="Manu";
+	document.getElementById("auto_manu_button").style.backgroundColor="red";
+        document.getElementById("angle").style.display = "block";
+
+document.getElementById("on_off_button").addEventListener("click",async function() {
+    let response;
+    if(this.innerHTML == "Engine Off") {
+	response = await fetch('/engine_on');
+	this.innerHTML = "Engine On";
+        this.style.backgroundColor="green";
+        document.getElementById("speed").disabled = false;
+        document.getElementById("angle").disabled = false;
+        engine=1;
+    }	
+    else {
+	response = await fetch('/engine_off');
+	this.innerHTML = "Engine Off";
+        this.style.backgroundColor="red";
+        document.getElementById("speed").disabled = true;
+        document.getElementById("angle").disabled = true;
+        engine=0;
+    }	
+    let data = await response.json();
+    angle=0;
+    document.getElementById("angle").value = angle;
+    document.getElementById("angle_markers").value = angle;
+    vmax=0;
+    document.getElementById("speed").value = vmax;
+    document.getElementById("speed_markers").value = vmax;
+
+    //document.getElementById("status").innerText = "started";
+});
+
+document.getElementById("auto_manu_button").addEventListener("click",async function() {
+    if(this.innerHTML == "Manu") {
+	var response = await fetch('/mode_auto');
+	this.innerHTML = "Auto";
+        this.style.backgroundColor="green";
+	auto_manu=1;
+        document.getElementById("angle").style.display = "none";
+    }	
+    else {
+	var response = await fetch('/mode_manu');
+	this.innerHTML = "Manu";
+        this.style.backgroundColor="red";
+	auto_manu=0;
+        document.getElementById("angle").style.display = "block";
+   }
+    angle=0;
+    document.getElementById("angle").value = angle;
+    document.getElementById("angle_markers").value = angle;
+    vmax=0;
+    document.getElementById("speed").value = vmax;
+    document.getElementById("speed_markers").value = vmax;
+});
+
+document.getElementById("save_img_button").addEventListener("click",async function() {
+    let response = await fetch('/save_img');
+    let data = await response.json();
+});
+
+document.getElementById("speed").addEventListener("change",async function() {
+    if(engine==0) return 0;
+    let speed = this.value;
+    if(auto_manu==1) {
+        vmax = speed;
+    	let response = await fetch('/engine_vmax?vmax='+vmax);
+    } else {
+    	let response = await fetch('/manu_speed_forward?speed='+speed);
+    }
+    let data = await response.json();
+});
+
+document.getElementById("angle").addEventListener("change",async function() {
+    if(engine==0) return 0;
+    let angle = this.value;
+    if(auto_manu==0) {
+    	let response = await fetch('/manu_angle?angle='+angle);
+    }
+    let data = await response.json();
+});
+
+}
+</script>
+<body onload="init()">
+    <img style="-webkit-user-select: none;" src="/camera" width="100%">
+    <button id="on_off_button"></button>
+    <button id="auto_manu_button"></button>
+    <BR>
+    <label for="points">Vmax :</label>
+    <BR>
+    <input type="range" id="speed" name="speed" min="0" max="100" value="0" list="speed_markers">
+	<datalist id="speed_markers">
+		<option value="0" label="0"></option>
+		<option value="10"></option>
+		<option value="20" label="20"></option>
+		<option value="30"></option>
+		<option value="40" label="40"></option>
+		<option value="50"></option>
+		<option value="60" label="60"></option>
+		<option value="70"></option>
+		<option value="80" label="80"></option>
+		<option value="90"></option>
+		<option value="100" label="100"></option>
+	</datalist>		
+    <input type="range" id="angle" name="angle" min="-45" max="45" value="0" list="angle_markers">
+	<datalist id="angle_markers">
+		<option value="-45"></option>
+		<option value="-40" label="-40"></option>
+		<option value="-35"></option>
+		<option value="-30" label="-30"></option>
+		<option value="-25"></option>
+		<option value="-20" label="-20"></option>
+		<option value="-15"></option>
+		<option value="-10" label="-10"></option>
+		<option value="-5"></option>
+		<option value="0" label="0"></option>
+		<option value="5"></option>
+		<option value="10" label="10"></option>
+		<option value="15"></option>
+		<option value="20" label="20"></option>
+		<option value="25"></option>
+		<option value="30" label="30"></option>
+		<option value="35"></option>
+		<option value="40" label="40"></option>
+		<option value="45"></option>
+	</datalist>		
+    <BR>
+    <button id="save_img_button">Save Img</button>
+    <BR>
+</body>		 
+</html>
+
